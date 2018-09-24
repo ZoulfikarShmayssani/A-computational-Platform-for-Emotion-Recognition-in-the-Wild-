@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">KeyLoggers-Notify</string>
+    <string name="left">Left button pressed</string>
+    <string name="right">Right button pressed</string>
+</resources>
