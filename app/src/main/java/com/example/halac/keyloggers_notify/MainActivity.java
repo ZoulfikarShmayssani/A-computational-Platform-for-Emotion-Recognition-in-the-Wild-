@@ -19,6 +19,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
     static public final int REQUEST_LOCATION = 1;
+    static public final int REQUEST_EXTERNAL_STORAGE_RW = 2;
     EditText fname;
     EditText lname;
     EditText gender;
@@ -75,19 +76,36 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        startService(new Intent(this, RegistrableSensorManager.class));
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+        }
+        else
+        {
+            runService();
         }
     }
 
+    private void runService()
+    {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_EXTERNAL_STORAGE_RW);
+        }
+        else
+        {
+            startService(new Intent(this, RegistrableSensorManager.class));
+        }
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case REQUEST_LOCATION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    RegistrableSensorManager.Instance.registerGPS();
-                }
+                runService();
+                break;
+            case REQUEST_EXTERNAL_STORAGE_RW:
+                startService(new Intent(this, RegistrableSensorManager.class));
                 break;
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);

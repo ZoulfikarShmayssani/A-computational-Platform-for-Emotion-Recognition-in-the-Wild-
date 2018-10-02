@@ -15,7 +15,8 @@ class MyLocationListener implements LocationListener
         lastMeasuredValues = new double[] { loc.getLatitude(), loc.getLongitude()};
     }
 
-    public double[] getLastMeasuredValues() {
+    public double[] getLastMeasuredValues()
+    {
         return lastMeasuredValues;
     }
 

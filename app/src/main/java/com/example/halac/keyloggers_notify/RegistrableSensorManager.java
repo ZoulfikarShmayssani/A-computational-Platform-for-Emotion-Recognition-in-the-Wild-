@@ -1,12 +1,19 @@
 package com.example.halac.keyloggers_notify;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.SensorManager;
+import android.location.Criteria;
 import android.location.LocationManager;
+import android.location.LocationProvider;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -20,12 +27,13 @@ import java.io.PrintStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class RegistrableSensorManager extends Service {
+public class RegistrableSensorManager extends Service
+{
     public static RegistrableSensorManager Instance;
     private static SensorManager sensorManager;
     private static LocationManager locationManager;
     private static MyLocationListener locationListener;
-    private RegistrableSensorEventListener[] sensors ;
+    private RegistrableSensorEventListener[] sensors;
     private boolean[] registered;
     private Timer timer;
     FileOutputStream fileOutputStream;
@@ -36,8 +44,7 @@ public class RegistrableSensorManager extends Service {
     }
 
     @Override
-    public void onCreate()
-    {
+    public void onCreate() {
         Instance = this;
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         RegistrableSensorEventListener[] sensors = {
@@ -51,18 +58,15 @@ public class RegistrableSensorManager extends Service {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new MyLocationListener();
         timer = new Timer();
-        File csv = new File(getFilesDir(), "sensorData.csv");
-
-        try
-        {
-            if (!csv.exists() || !csv.isFile())
-            {
+        File csv = new File((ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) ? getFilesDir() : Environment.getExternalStorageDirectory(), "sensorData.csv");
+        // TODO: take into consideration that the user might revoke permissions later
+        try {
+            if (!csv.exists() || !csv.isFile()) {
                 csv.createNewFile();
                 PrintStream stream = new PrintStream(csv);
                 stream.print("Time,GPS");
 
-                for (RegistrableSensorEventListener sensor: sensors)
-                {
+                for (RegistrableSensorEventListener sensor : sensors) {
                     stream.print("," + sensor.type);
                 }
 
@@ -71,13 +75,9 @@ public class RegistrableSensorManager extends Service {
             }
 
             fileOutputStream = new FileOutputStream(csv, true);
-        }
-        catch (FileNotFoundException e)
-        {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -86,67 +86,61 @@ public class RegistrableSensorManager extends Service {
     }
 
     @Override
-    public void onDestroy()
-    {
-        try
-        {
+    public void onDestroy() {
+        try {
             fileOutputStream.close();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
         timer.cancel();
         unregisterAll();
-
-        try
-        {
-            Log.d("sensorData", convertStreamToString(openFileInput("sensorData.csv")));
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
     }
 
     public static SensorManager getSensorManager() {
-        if(sensorManager == null)
-        {
+        if (sensorManager == null) {
             throw new RuntimeException("RegistrableSensorManager service hasn't start yet!!");
         }
 
         return sensorManager;
     }
 
-    public boolean registerSensor(RegistrableSensorType type)
-    {
-        if(!registered[type.index])
-        {
+    public boolean registerSensor(RegistrableSensorType type) {
+        if (!registered[type.index]) {
             registered[type.index] = sensors[type.index].register();
         }
 
         return registered[type.index];
     }
 
-    public void unregisterSensor(RegistrableSensorType type)
-    {
-        if(registered[type.index])
-        {
+    public void unregisterSensor(RegistrableSensorType type) {
+        if (registered[type.index]) {
             registered[type.index] = false;
             sensors[type.index].unregister();
         }
     }
 
+    @SuppressLint("MissingPermission")
     public void registerGPS()
     {
-        try
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
         {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MyLocationListener.duration * 1000, 0, locationListener, Looper.myLooper());
-        }
-        catch (SecurityException e)
-        {
-            e.printStackTrace();
+            try
+            {
+//                Criteria criteria = new Criteria();
+//                criteria.setAccuracy(Criteria.ACCURACY_FINE);
+//                criteria.setPowerRequirement(Criteria.POWER_LOW);
+//                criteria.setVerticalAccuracy(Criteria.NO_REQUIREMENT);
+//                criteria.setHorizontalAccuracy(Criteria.ACCURAx`CY_MEDIUM);
+//                criteria.setBearingRequired(false);
+//                criteria.setSpeedRequired(false);
+//                criteria.setCostAllowed(false);
+                locationManager.requestLocationUpdates(/*locationManager.getBestProvider(criteria, true)*/LocationManager.GPS_PROVIDER, MyLocationListener.duration * 1000, 0, locationListener, Looper.myLooper());
+            }
+            catch (SecurityException e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -157,8 +151,7 @@ public class RegistrableSensorManager extends Service {
 
     public boolean registerAll()
     {
-        // TODO: fix issues with gps
-        //registerGPS();
+        registerGPS();
         boolean allRegistered = true;
 
         for(RegistrableSensorEventListener sensor: sensors)
