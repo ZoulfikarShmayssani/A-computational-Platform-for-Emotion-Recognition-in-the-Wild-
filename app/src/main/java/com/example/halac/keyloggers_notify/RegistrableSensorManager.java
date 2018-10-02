@@ -51,7 +51,11 @@ public class RegistrableSensorManager extends Service
                 new RegistrableSensorEventListener(RegistrableSensorType.humidity, 20),
                 new RegistrableSensorEventListener(RegistrableSensorType.accelerometer, 20),
                 new RegistrableSensorEventListener(RegistrableSensorType.stepCounter, 20),
-                new RegistrableSensorEventListener(RegistrableSensorType.temperature, 20)
+                new RegistrableSensorEventListener(RegistrableSensorType.temperature, 20),
+                new RegistrableSensorEventListener(RegistrableSensorType.light, 20),
+                new RegistrableSensorEventListener(RegistrableSensorType.linearAcceleration, 20 ),
+                new RegistrableSensorEventListener(RegistrableSensorType.gyroscope,20),
+                new RegistrableSensorEventListener(RegistrableSensorType.proximity,20)
         };
         this.sensors = sensors;
         registered = new boolean[sensors.length];
