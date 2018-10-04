@@ -7,14 +7,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.SensorManager;
-import android.location.Criteria;
 import android.location.LocationManager;
-import android.location.LocationProvider;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,16 +32,53 @@ import java.io.PrintStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class RegistrableSensorManager extends Service
-{
+public class RegistrableSensorManager extends Service {
     public static RegistrableSensorManager Instance;
     private static SensorManager sensorManager;
     private static LocationManager locationManager;
     private static MyLocationListener locationListener;
+    FileOutputStream fileOutputStream;
     private RegistrableSensorEventListener[] sensors;
     private boolean[] registered;
     private Timer timer;
-    FileOutputStream fileOutputStream;
+
+    public static SensorManager getSensorManager() {
+        if (sensorManager == null) {
+            throw new RuntimeException("RegistrableSensorManager service hasn't start yet!!");
+        }
+
+        return sensorManager;
+    }
+
+    private static String join(double[] values, String delimeter) {
+        StringBuilder sb = new StringBuilder();
+
+        if (values != null && values.length != 0) {
+            sb.append(values[0]);
+
+            for (int i = 1; i < values.length; i++) {
+                sb.append(delimeter);
+                sb.append(values[i]);
+            }
+        }
+
+        return sb.toString();
+    }
+
+    private static String join(float[] values, String delimeter) {
+        StringBuilder sb = new StringBuilder();
+
+        if (values != null && values.length != 0) {
+            sb.append(values[0]);
+
+            for (int i = 1; i < values.length; i++) {
+                sb.append(delimeter);
+                sb.append(values[i]);
+            }
+        }
+
+        return sb.toString();
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -53,9 +95,9 @@ public class RegistrableSensorManager extends Service
                 new RegistrableSensorEventListener(RegistrableSensorType.stepCounter, 20),
                 new RegistrableSensorEventListener(RegistrableSensorType.temperature, 20),
                 new RegistrableSensorEventListener(RegistrableSensorType.light, 20),
-                new RegistrableSensorEventListener(RegistrableSensorType.linearAcceleration, 20 ),
-                new RegistrableSensorEventListener(RegistrableSensorType.gyroscope,20),
-                new RegistrableSensorEventListener(RegistrableSensorType.proximity,20)
+                new RegistrableSensorEventListener(RegistrableSensorType.linearAcceleration, 20),
+                new RegistrableSensorEventListener(RegistrableSensorType.gyroscope, 20),
+                new RegistrableSensorEventListener(RegistrableSensorType.proximity, 20)
         };
         this.sensors = sensors;
         registered = new boolean[sensors.length];
@@ -79,6 +121,30 @@ public class RegistrableSensorManager extends Service
             }
 
             fileOutputStream = new FileOutputStream(csv, true);
+
+            //Uploading file to firebase
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            // Create a storage reference from our app
+            StorageReference storageRef = storage.getReference();
+            File path = Environment.getExternalStorageDirectory();
+            Uri file = Uri.fromFile(new File(csv.getAbsolutePath()));
+            StorageReference riversRef = storageRef.child("Sensors/" + file.getLastPathSegment());
+            UploadTask uploadTask = riversRef.putFile(file);
+
+            // Register observers to listen for when the download is done or if it fails
+            uploadTask.addOnFailureListener(new OnFailureListener() {
+
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle unsuccessful uploads
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                    // ...
+                }
+            });
+            
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -92,6 +158,8 @@ public class RegistrableSensorManager extends Service
     @Override
     public void onDestroy() {
         try {
+
+
             fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -99,14 +167,6 @@ public class RegistrableSensorManager extends Service
 
         timer.cancel();
         unregisterAll();
-    }
-
-    public static SensorManager getSensorManager() {
-        if (sensorManager == null) {
-            throw new RuntimeException("RegistrableSensorManager service hasn't start yet!!");
-        }
-
-        return sensorManager;
     }
 
     public boolean registerSensor(RegistrableSensorType type) {
@@ -125,12 +185,9 @@ public class RegistrableSensorManager extends Service
     }
 
     @SuppressLint("MissingPermission")
-    public void registerGPS()
-    {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-        {
-            try
-            {
+    public void registerGPS() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            try {
 //                Criteria criteria = new Criteria();
 //                criteria.setAccuracy(Criteria.ACCURACY_FINE);
 //                criteria.setPowerRequirement(Criteria.POWER_LOW);
@@ -140,50 +197,40 @@ public class RegistrableSensorManager extends Service
 //                criteria.setSpeedRequired(false);
 //                criteria.setCostAllowed(false);
                 locationManager.requestLocationUpdates(/*locationManager.getBestProvider(criteria, true)*/LocationManager.GPS_PROVIDER, MyLocationListener.duration * 1000, 0, locationListener, Looper.myLooper());
-            }
-            catch (SecurityException e)
-            {
+            } catch (SecurityException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void unregisterGPS()
-    {
+    public void unregisterGPS() {
         locationManager.removeUpdates(locationListener);
     }
 
-    public boolean registerAll()
-    {
+    public boolean registerAll() {
         registerGPS();
         boolean allRegistered = true;
 
-        for(RegistrableSensorEventListener sensor: sensors)
-        {
+        for (RegistrableSensorEventListener sensor : sensors) {
             allRegistered &= registerSensor(sensor.type);
         }
 
         return allRegistered;
     }
 
-    public void unregisterAll()
-    {
+    public void unregisterAll() {
         unregisterGPS();
 
-        for(RegistrableSensorEventListener sensor: sensors)
-        {
+        for (RegistrableSensorEventListener sensor : sensors) {
             unregisterSensor(sensor.type);
         }
     }
 
-    public void writePeriodicMeasurements()
-    {
+    public void writePeriodicMeasurements() {
         int gcd = MyLocationListener.duration;
 
-        for(int i = 0; i < sensors.length; i++)
-        {
-            if(registered[i])
-            {
+        for (int i = 0; i < sensors.length; i++) {
+            if (registered[i]) {
                 gcd = gcd(sensors[i].duration, gcd);
             }
         }
@@ -191,19 +238,15 @@ public class RegistrableSensorManager extends Service
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                try
-                {
+                try {
                     fileOutputStream.write((System.currentTimeMillis() + "," + join(locationListener.getLastMeasuredValues(), " | ")).getBytes());
 
-                    for(RegistrableSensorEventListener sensor: sensors)
-                    {
-                        fileOutputStream.write(("," + join(sensor.getLastMeasuredValues() , " | ")).getBytes());
+                    for (RegistrableSensorEventListener sensor : sensors) {
+                        fileOutputStream.write(("," + join(sensor.getLastMeasuredValues(), " | ")).getBytes());
                     }
 
                     fileOutputStream.write("\n".getBytes());
-                }
-                catch (IOException e)
-                {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -211,45 +254,8 @@ public class RegistrableSensorManager extends Service
 
     }
 
-    private int gcd(int a, int b)
-    {
+    private int gcd(int a, int b) {
         return (b == 0) ? a : gcd(b, a % b);
-    }
-
-    private static String join(double[] values, String delimeter)
-    {
-        StringBuilder sb = new StringBuilder();
-
-        if(values != null && values.length != 0)
-        {
-            sb.append(values[0]);
-
-            for(int i = 1; i < values.length; i++)
-            {
-                sb.append(delimeter);
-                sb.append(values[i]);
-            }
-        }
-
-        return sb.toString();
-    }
-
-    private static String join(float[] values, String delimeter)
-    {
-        StringBuilder sb = new StringBuilder();
-
-        if(values != null && values.length != 0)
-        {
-            sb.append(values[0]);
-
-            for(int i = 1; i < values.length; i++)
-            {
-                sb.append(delimeter);
-                sb.append(values[i]);
-            }
-        }
-
-        return sb.toString();
     }
 
     public String convertStreamToString(InputStream is) throws Exception {
