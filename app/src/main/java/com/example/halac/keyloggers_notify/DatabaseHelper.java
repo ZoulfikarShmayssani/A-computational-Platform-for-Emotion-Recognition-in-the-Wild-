@@ -45,11 +45,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_NAME, null, contentValues);
     }
 
-    public User getUser() {
+    public Users getUser() {
         String selectQuery = "SELECT  * FROM " + TABLE_NAME;
         SQLiteDatabase db  = this.getReadableDatabase();
         Cursor cursor      = db.rawQuery(selectQuery,null);
-        User u = null;
+        Users u = null;
         if (cursor.moveToFirst())
         {
             do
@@ -60,7 +60,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String mood = cursor.getString(cursor.getColumnIndex(COL_4));
                 String gender = cursor.getString(cursor.getColumnIndex(COL_5));
                 String comment = cursor.getString(cursor.getColumnIndex(COL_6));
-                u = new User(firstName,lastName,age,mood,gender,comment);
+                u = new Users(firstName,lastName,age,mood,gender,comment);
             }
             while (cursor.moveToNext());
         }

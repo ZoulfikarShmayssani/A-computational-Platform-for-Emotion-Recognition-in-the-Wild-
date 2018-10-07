@@ -26,7 +26,7 @@ public class MyAccessibilityService extends AccessibilityService {
     @Override
     public void onServiceConnected() {
         Log.d("test", "Connected");
-        User user = db.getUser ();
+        Users user = db.getUser ();
         database = FirebaseDatabase.getInstance().getReference("Users");
         id =database.push().getKey();
         database.child(id).setValue(user);
