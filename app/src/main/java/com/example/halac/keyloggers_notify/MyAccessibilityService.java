@@ -103,8 +103,9 @@ public class MyAccessibilityService extends AccessibilityService {
 
     // addLog for all events except scrolled events
     private void addLog(String type, String context, String date) {
-            String key = database.push ().getKey ();
+            /*String key = database.push ().getKey ();
             Logs l = new Logs (type, context, date);
-            database.child(id).child(logs).child(key).setValue(l);
+            database.child(id).child(logs).child(key).setValue(l);*/
+            db.insertLog(type, context, date);
     }
 }
