@@ -44,7 +44,7 @@ public class RegistrableSensorManager extends Service {
     private static MyLocationListener locationListener;
     FileOutputStream fileOutputStream;
     MediaRecorder recorder;
-    File audioRecordFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/AudioRecord");
+    File audioRecordFolder;
     String path=null;
     Handler handler1 = new Handler();
 
@@ -125,9 +125,23 @@ public class RegistrableSensorManager extends Service {
         locationListener = new MyLocationListener();
         timer = new Timer();
         audioTimer = new Timer();
-        File csv = new File((ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) ? getFilesDir() : Environment.getExternalStorageDirectory(), "sensorData.csv");
+        File csv;
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+        {
+            audioRecordFolder = new File(getFilesDir() + "/AudioRecord");
+            csv = new File(getFilesDir(), "sensorData.csv");
+        }
+        else
+        {
+            audioRecordFolder = new File( Environment.getExternalStorageDirectory() + "/AudioRecord");
+            csv = new File( Environment.getExternalStorageDirectory(), "sensorData.csv");
+        }
         // TODO: take into consideration that the user might revoke permissions later
         try {
+            if(audioRecordFolder.exists() || !audioRecordFolder.isDirectory())
+            {
+                audioRecordFolder.mkdirs();
+            }
             if (!csv.exists() || !csv.isFile()) {
                 csv.createNewFile();
                 PrintStream stream = new PrintStream(csv);
@@ -181,8 +195,6 @@ public class RegistrableSensorManager extends Service {
     @Override
     public void onDestroy() {
         try {
-
-
             fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -252,9 +264,6 @@ public class RegistrableSensorManager extends Service {
     public void recordAudio(String fileName) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
             try {
-                Calendar now = Calendar.getInstance();
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                String date = formatter.format(now.getTime());
                 recorder = new MediaRecorder();
                 path = audioRecordFolder.getAbsolutePath() + "/" + fileName + ".3gp";
                 String state = android.os.Environment.getExternalStorageState();
@@ -285,8 +294,7 @@ public class RegistrableSensorManager extends Service {
         audioTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                recordAudio("AudioRecord");
-                Log.i("aaa","aaa");
+                recordAudio(new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()));
             }
         }, 0, 60000);
     }
