@@ -8,12 +8,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.SensorManager;
 import android.location.LocationManager;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -29,6 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,9 +43,24 @@ public class RegistrableSensorManager extends Service {
     private static LocationManager locationManager;
     private static MyLocationListener locationListener;
     FileOutputStream fileOutputStream;
+    MediaRecorder recorder;
+    File audioRecordFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/AudioRecord");
+    String path=null;
+    Handler handler1 = new Handler();
+
+    Runnable runnable4 = new Runnable() {
+        @Override
+        public void run() {
+            recorder.stop();
+            recorder.reset();
+            recorder.release();
+        }
+
+    };
     private RegistrableSensorEventListener[] sensors;
     private boolean[] registered;
     private Timer timer;
+    private Timer audioTimer;
 
     public static SensorManager getSensorManager() {
         if (sensorManager == null) {
@@ -104,6 +124,7 @@ public class RegistrableSensorManager extends Service {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new MyLocationListener();
         timer = new Timer();
+        audioTimer = new Timer();
         File csv = new File((ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) ? getFilesDir() : Environment.getExternalStorageDirectory(), "sensorData.csv");
         // TODO: take into consideration that the user might revoke permissions later
         try {
@@ -144,7 +165,7 @@ public class RegistrableSensorManager extends Service {
                     // ...
                 }
             });
-            
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -153,6 +174,8 @@ public class RegistrableSensorManager extends Service {
 
         registerAll();
         writePeriodicMeasurements();
+        recordPeriodicClips();
+
     }
 
     @Override
@@ -224,6 +247,48 @@ public class RegistrableSensorManager extends Service {
         for (RegistrableSensorEventListener sensor : sensors) {
             unregisterSensor(sensor.type);
         }
+    }
+
+    public void recordAudio(String fileName) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            try {
+                Calendar now = Calendar.getInstance();
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                String date = formatter.format(now.getTime());
+                recorder = new MediaRecorder();
+                path = audioRecordFolder.getAbsolutePath() + "/" + fileName + ".3gp";
+                String state = android.os.Environment.getExternalStorageState();
+                if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
+                }
+                // make sure the directory we plan to store the recording in exists
+                //Sets the audio source to be used for recording.
+                recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                //setting 3gp as output format
+                recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+                recorder.setMaxDuration(10000);
+                //path of the audio recording to be stored
+                recorder.setOutputFile(path);
+                //Prepares the recorder to begin
+                recorder.prepare();
+                //begins capturing data
+                recorder.start();
+                handler1.postDelayed(runnable4, 10000);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void recordPeriodicClips() {
+        audioTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                recordAudio("AudioRecord");
+                Log.i("aaa","aaa");
+            }
+        }, 0, 60000);
     }
 
     public void writePeriodicMeasurements() {

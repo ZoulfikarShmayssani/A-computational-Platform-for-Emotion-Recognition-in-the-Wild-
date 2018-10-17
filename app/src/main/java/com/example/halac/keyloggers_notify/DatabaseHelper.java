@@ -87,6 +87,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(ECOL_1, type);
         contentValues.put(ECOL_2, context);
         contentValues.put(ECOL_3, date);
-        db.insert(TABLE_NAME, null, contentValues);
+        db.insert(Extraction_Table, null, contentValues);
     }
 }
