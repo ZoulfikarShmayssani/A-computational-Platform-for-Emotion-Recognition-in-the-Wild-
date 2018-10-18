@@ -16,7 +16,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -24,16 +23,27 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -45,8 +55,10 @@ public class RegistrableSensorManager extends Service {
     FileOutputStream fileOutputStream;
     MediaRecorder recorder;
     File audioRecordFolder;
-    String path=null;
     Handler handler1 = new Handler();
+    DatabaseHelper db = new DatabaseHelper(this);
+    public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    CSVPrinter csvPrinter;
 
     Runnable runnable4 = new Runnable() {
         @Override
@@ -125,16 +137,25 @@ public class RegistrableSensorManager extends Service {
         locationListener = new MyLocationListener();
         timer = new Timer();
         audioTimer = new Timer();
-        File csv;
+        String parent;
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
         {
-            audioRecordFolder = new File(getFilesDir() + "/AudioRecord");
-            csv = new File(getFilesDir(), "sensorData.csv");
+            parent = getFilesDir().toString();
         }
         else
         {
-            audioRecordFolder = new File( Environment.getExternalStorageDirectory() + "/AudioRecord");
-            csv = new File( Environment.getExternalStorageDirectory(), "sensorData.csv");
+            parent = Environment.getExternalStorageDirectory().toString();
+        }
+        File csv = new File(parent, "sensorData.csv");
+        audioRecordFolder = new File(parent, "AudioRecord");
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(parent + "/eventCounts.csv"));
+            csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
+                    .withHeader("time", "click #", "long click #", "scrolls #", "text #", "focused #", "window changed #", "logs #",
+                    "time facebook", "time whatsapp", "time instagram", "time camera", "time gallery", "time email",
+                    "time youtube", "time games", "camera #", "phone #", "calls #", "words #", "search #", "youtube vid #", "key logs"));//what is number of phone(phone #)??!?!?
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         // TODO: take into consideration that the user might revoke permissions later
         try {
@@ -201,6 +222,7 @@ public class RegistrableSensorManager extends Service {
         }
 
         timer.cancel();
+        audioTimer.cancel();
         unregisterAll();
     }
 
@@ -265,7 +287,7 @@ public class RegistrableSensorManager extends Service {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
             try {
                 recorder = new MediaRecorder();
-                path = audioRecordFolder.getAbsolutePath() + "/" + fileName + ".3gp";
+                String path = audioRecordFolder.getAbsolutePath() + "/" + fileName + ".3gp";
                 String state = android.os.Environment.getExternalStorageState();
                 if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
                 }
@@ -294,7 +316,7 @@ public class RegistrableSensorManager extends Service {
         audioTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                recordAudio(new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()));
+                recordAudio(sdf.format(Calendar.getInstance().getTime()).replace(":", "-"));
             }
         }, 0, 60000);
     }
@@ -312,7 +334,8 @@ public class RegistrableSensorManager extends Service {
             @Override
             public void run() {
                 try {
-                    fileOutputStream.write((System.currentTimeMillis() + "," + join(locationListener.getLastMeasuredValues(), " | ")).getBytes());
+                    writeCounts();
+                    fileOutputStream.write((sdf.format(Calendar.getInstance().getTime()) + "," + join(locationListener.getLastMeasuredValues(), " | ")).getBytes());
 
                     for (RegistrableSensorEventListener sensor : sensors) {
                         fileOutputStream.write(("," + join(sensor.getLastMeasuredValues(), " | ")).getBytes());
@@ -320,6 +343,8 @@ public class RegistrableSensorManager extends Service {
 
                     fileOutputStream.write("\n".getBytes());
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
                     e.printStackTrace();
                 }
             }
@@ -331,15 +356,107 @@ public class RegistrableSensorManager extends Service {
         return (b == 0) ? a : gcd(b, a % b);
     }
 
-    public String convertStreamToString(InputStream is) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line).append("\n");
+    public void writeCounts() throws ParseException {
+        Calendar cal = Calendar.getInstance();
+        long currentTime = cal.getTime().getTime();
+        String time = sdf.format(cal.getTime());
+        //TODO: 20000 stands for 20 sec, so make this a variable. also make own timer !!!
+        String where = DatabaseHelper.ECOL_3 + " <= '" + currentTime + "' AND " + DatabaseHelper.ECOL_3 + " >= '" + (currentTime - 20000) + "'";
+        List<Log> listLogs = db.getLogs(where);
+
+        FeaturesExtraction f = new FeaturesExtraction();
+
+        //get click count (1)
+        f.addExtractor(new ExtractNbEvent(listLogs, "CLICKED"));
+
+        //get long click count (2)
+        f.addExtractor(new ExtractNbEvent(listLogs, "LONG CLICKED"));
+
+        //get scrolls count (3)
+        f.addExtractor(new ExtractNbEvent(listLogs, "SCROLLED"));
+
+        //get text count (4)
+        f.addExtractor(new ExtractNbEvent(listLogs, "TEXT"));
+
+        //get focused count (5)
+        f.addExtractor(new ExtractNbEvent(listLogs, "FOCUSED"));
+
+        //get number of change window (6)
+        f.addExtractor(new ExtractNbEvent(listLogs, "CHANGE"));
+
+        //get logs count (7)
+        f.addExtractor(new ExtractNbLogs(listLogs));
+
+        //get time in Facebook (8)
+        f.addExtractor(new ExtractTimeSpent(listLogs, ".*(Facebook).*"));
+
+        //get time in Whatsapp (9)
+        f.addExtractor(new ExtractTimeSpent(listLogs, ".*(Whatsapp).*"));
+
+        //get time in Instagram (10)
+        f.addExtractor(new ExtractTimeSpent(listLogs, ".*(Instagram).*"));
+
+        //get time in Camera (11)
+        f.addExtractor(new ExtractTimeSpent(listLogs, ".*(Camera).*"));
+
+        //get time in Gallery (12)
+        f.addExtractor(new ExtractTimeSpent(listLogs, ".*(Gallery).*"));
+
+        //get time in Email (13)
+        f.addExtractor(new ExtractTimeSpent(listLogs, ".*(Email|Gmail|Outlook).*"));
+
+        //get time in Youtube (14)
+        f.addExtractor(new ExtractTimeSpent(listLogs, ".*(YouTube).*"));
+
+        //time spent in games (15)
+        f.addExtractor(new ExtractTimeSpent(listLogs, ".*(PrincessSalon|Candy Crush Saga|Six Guns).*"));
+
+        //get number of  Camera (16)
+        f.addExtractor(new ExtractAppCount(listLogs, "[Camera]"));
+
+        //get number of  Phone (17)
+        f.addExtractor(new ExtractAppCount(listLogs, "[Phone]"));
+
+        // count calls (18)
+        f.addExtractor(new ExtractAppCount(listLogs, "[Dialing"));
+
+        //add social media ??
+
+        //get word count (19)
+        f.addExtractor(new ExtractNumWords(listLogs));
+
+        //get search count (20)
+        f.addExtractor(new ExtractNbSearchCount(listLogs));
+
+        //number of Youtube videos (21)
+        f.addExtractor(new ExtractnNbYoutubeVideo(listLogs));
+
+        // print all the features for all users
+        List<String> input = new ArrayList<>();
+        input.add(time);
+
+        for(FeatureExtractor fe: f.getFreatures())
+        {
+            input.add(fe.toString());
         }
-        reader.close();
-        return sb.toString();
+
+        StringBuilder sb = new StringBuilder();
+
+        for (Log log: listLogs)
+        {
+            if(log.getType().equals("TEXT")) {
+                sb.append(log.getContext() + "\n");
+            }
+        }
+        input.add(sb.toString());
+
+        try
+        {
+            csvPrinter.printRecord(input);
+            csvPrinter.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

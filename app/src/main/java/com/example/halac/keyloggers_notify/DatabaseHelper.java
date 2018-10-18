@@ -6,6 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DatabaseHelper extends SQLiteOpenHelper {
     public final static String DATABASE_NAME = "User.db";
     public final static String TABLE_NAME = "user";
@@ -33,7 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 " TEXT," + COL_3 + " TEXT," + COL_4 + " TEXT," + COL_5 + " TEXT," + COL_6 + " TEXT);");
 
         db.execSQL("create table " + Extraction_Table + "(ID INTEGER PRIMARY KEY AUTOINCREMENT," + ECOL_1 + " TEXT," + ECOL_2 +
-                " TEXT," + ECOL_3 + " TEXT);");
+                " TEXT," + ECOL_3 + " INTEGER);");
     }
 
     @Override
@@ -88,5 +91,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(ECOL_2, context);
         contentValues.put(ECOL_3, date);
         db.insert(Extraction_Table, null, contentValues);
+    }
+
+    public List<Log> getLogs(String where) {
+        String selectQuery = "SELECT * FROM " + Extraction_Table + " WHERE " + where;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        List<Log> logs = new ArrayList<>();
+
+        if (cursor.moveToFirst()) {
+            do {
+                String type = cursor.getString(cursor.getColumnIndex(ECOL_1));
+                String context = cursor.getString(cursor.getColumnIndex(ECOL_2));
+                String date = cursor.getString(cursor.getColumnIndex(ECOL_3));
+                Log log = new Log();
+                log.setType(type);
+                log.setContext(context);
+                log.setDateAndTime(date);
+                logs.add(log);
+            }
+            while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        return logs;
     }
 }
