@@ -13,29 +13,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
     static public final int REQUEST_LOCATION = 1;
     static public final int REQUEST_EXTERNAL_STORAGE_RW = 2;
 
-    EditText fname;
-    EditText lname;
-    EditText gender;
-    EditText age;
-    EditText mood;
-    EditText comments;
-    Button add;
+    EditText fname, lname, gender, age;
+    Button add,checkList;
     Boolean flag1 = false;
     Boolean flag2 = false;
     Boolean flag3 = false;
     Boolean flag4 = false;
-    Boolean flag5 = false;
-    Boolean flag6 = false;
 
     DatabaseHelper db = new DatabaseHelper(this);
-    DatabaseReference database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,15 +33,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        database = FirebaseDatabase.getInstance().getReference("Users");
-
         fname = (EditText) findViewById(R.id.fname);
         lname = (EditText) findViewById(R.id.lname);
         gender = (EditText) findViewById(R.id.gender);
         age = (EditText) findViewById(R.id.age);
-        mood = (EditText) findViewById(R.id.mood);
-        comments = (EditText) findViewById(R.id.comment);
         add = (Button) findViewById(R.id.add);
+        checkList=(Button)findViewById(R.id.SendDataChecklist);
 
         Intent intentService = new Intent(this, MyAccessibilityService.class);
         this.startService(intentService);
@@ -67,20 +54,23 @@ public class MainActivity extends AppCompatActivity {
                 addUser();
                 Intent redirect = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
                 startActivityForResult(redirect, 1);
-                /*
-                fname.setText("");
-                lname.setText("");
-                gender.setText("");
-                age.setText("");
-                mood.setText("");
-                comments.setText("");*/
             }
         });
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.RECORD_AUDIO}, REQUEST_LOCATION);
-        }
-        else {
+        checkList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent confirm= new Intent(MainActivity.this,CheckListActivity.class);
+                startActivity(confirm);
+
+            }
+        });
+
+
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.RECORD_AUDIO}, REQUEST_LOCATION);
+        } else {
             runService();
         }
     }
@@ -107,23 +97,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     private void addUser() {
         String fname1 = fname.getText().toString().trim();
         String lname1 = lname.getText().toString().trim();
         String age1 = age.getText().toString().trim();
-        String mood1 = mood.getText().toString().trim();
         String gender1 = gender.getText().toString().trim();
-        String comments1 = comments.getText().toString().trim();
+
 
         fname.setText("");
         lname.setText("");
         gender.setText(gender1);
         age.setText(age1);
-        mood.setText(mood1);
-        comments.setText("");
 
         db.deleteUser();
-        db.insertUser(fname1, lname1, age1, mood1, gender1, comments1);
+        db.insertUser(fname1, lname1, age1, gender1);
     }
 
     public void check() {
@@ -136,14 +124,13 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0) {
                     flag1 = true;
-                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true && flag5 == true && flag6 == true) {
+                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true) {
                         add.setEnabled(true);
                     }
                 } else {
                     flag1 = false;
                     add.setEnabled(false);
                 }
-
             }
 
             @Override
@@ -159,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0) {
                     flag2 = true;
-                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true && flag5 == true && flag6 == true) {
+                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true ) {
                         add.setEnabled(true);
                     }
                 } else {
@@ -182,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0) {
                     flag3 = true;
-                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true && flag5 == true && flag6 == true) {
+                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true ) {
                         add.setEnabled(true);
                     }
                 } else {
@@ -205,56 +192,11 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0) {
                     flag4 = true;
-                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true && flag5 == true && flag6 == true) {
+                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true ) {
                         add.setEnabled(true);
                     }
                 } else {
                     flag4 = false;
-                    add.setEnabled(false);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-        comments.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() > 0) {
-                    flag5 = true;
-                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true && flag5 == true && flag6 == true) {
-                        add.setEnabled(true);
-                    }
-                } else {
-                    flag5 = false;
-                    add.setEnabled(false);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-        mood.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() > 0) {
-                    flag6 = true;
-
-                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true && flag5 == true && flag6 == true) {
-                        add.setEnabled(true);
-                    }
-                } else {
-                    flag6 = false;
                     add.setEnabled(false);
                 }
             }

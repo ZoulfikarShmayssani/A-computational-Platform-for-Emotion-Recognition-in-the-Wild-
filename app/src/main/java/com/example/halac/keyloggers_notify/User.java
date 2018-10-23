@@ -5,12 +5,10 @@ import java.util.List;
 public class User {
 	private List<Log> Logs;
 	private String age;
-	private String comments;
 	private String dateAndtime;
 	private String fname;
 	private String lname;
 	private String gender;
-	private String mood;
 	
 	
 	public User(){
@@ -53,14 +51,6 @@ public class User {
 		this.age = age;
 	}
 
-	public String getComments() {
-		return comments;
-	}
-
-	public void setComments(String comments) {
-		this.comments = comments;
-	}
-
 	public String getDateAndtime() {
 		return dateAndtime;
 	}
@@ -92,24 +82,14 @@ public class User {
 	public void setGender(String gender) {
 		this.gender = gender;
 	}
-
-	public String getMood() {
-		return mood;
-	}
-
-	public void setMood(String mood) {
-		this.mood = mood;
-	}
 	
 	public int getCount() {
 		return Logs.size();
 	}
 	
 	  public String toString() {
-			String s = fname + " " + lname + " " + gender + " " + age + " " + mood + " " + comments + "  " + dateAndtime + " \n";
+			String s = fname + " " + lname + " " + gender + " " + age + "  " + dateAndtime + " \n";
 			for(Log log: Logs) s+= log;
 			return s;
 	  }
-	 
-
 }

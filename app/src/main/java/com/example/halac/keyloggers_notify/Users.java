@@ -16,13 +16,11 @@ public class Users {
     String comments;
     String dateAndtime;
 
-    public Users(String fname, String lname, String age, String mood, String gender, String comments) {
+    public Users(String fname, String lname, String age, String gender) {
         this.fname = fname;
         this.lname = lname;
         this.age = age;
         this.gender = gender;
-        this.mood = mood;
-        this.comments = comments;
         dateAndtime = this.getCurrentTimeStamp();
     }
 

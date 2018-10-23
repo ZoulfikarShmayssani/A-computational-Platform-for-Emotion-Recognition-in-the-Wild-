@@ -1,5 +1,14 @@
 <resources>
-    <string name="app_name">KeyLoggers-Notify</string>
+    <string name="app_name">Emotions Detection</string>
     <string name="left">Left button pressed</string>
     <string name="right">Right button pressed</string>
+
+    <string-array name="elements">
+        <item>Audio Files</item>
+        <item>Key Logger</item>
+        <item>GPS</item>
+        <item>Time Spent </item>
+        <item>Sensors' Data</item>
+    </string-array>
+
 </resources>

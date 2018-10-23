@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--suppress ALL -->
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                             xmlns:app="http://schemas.android.com/apk/res-auto"
-                                             xmlns:tools="http://schemas.android.com/tools"
-                                             android:layout_width="match_parent"
-                                             android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -23,29 +25,28 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="15dp"
-                >
+                android:orientation="vertical">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:weightSum="1"
                     android:layout_marginBottom="15dp"
-                    android:layout_marginTop="20dp">
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal"
+                    android:weightSum="1">
 
                     <TextView
                         android:id="@+id/textView2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
                         android:text="First Name:"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:textColor="@color/colorPrimaryDark"
                         android:textSize="8pt"
-                        android:textStyle="bold"
-                        android:fontFamily="sans-serif"/>
+                        android:textStyle="bold" />
 
                     <EditText
                         android:id="@+id/fname"
@@ -55,23 +56,24 @@
                         android:ems="10"
                         android:inputType="textPersonName" />
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:weightSum="1"
                     android:layout_marginBottom="15dp"
-                    >
+                    android:orientation="horizontal"
+                    android:weightSum="1">
+
                     <TextView
                         android:id="@+id/textlname"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
                         android:text="Last Name:"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:textColor="@color/colorPrimaryDark"
                         android:textSize="8pt"
-                        android:textStyle="bold"
-                        android:fontFamily="sans-serif"/>
+                        android:textStyle="bold" />
 
                     <EditText
                         android:id="@+id/lname"
@@ -82,23 +84,24 @@
                         android:inputType="textPersonName" />
 
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginBottom="15dp"
                     android:orientation="horizontal"
-                    android:weightSum="1"
-                    android:layout_marginBottom="15dp">
+                    android:weightSum="1">
 
                     <TextView
                         android:id="@+id/textage"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
                         android:text="Age:"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:textColor="@color/colorPrimaryDark"
                         android:textSize="8pt"
-                        android:textStyle="bold"
-                        android:fontFamily="sans-serif"/>
+                        android:textStyle="bold" />
 
 
                     <EditText
@@ -109,23 +112,24 @@
                         android:ems="10"
                         android:inputType="textPersonName" />
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginBottom="15dp"
                     android:orientation="horizontal"
-                    android:weightSum="1"
-                    android:layout_marginBottom="15dp">
+                    android:weightSum="1">
 
                     <TextView
                         android:id="@+id/textgender"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
                         android:text="Gender:"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:textColor="@color/colorPrimaryDark"
                         android:textSize="8pt"
-                        android:textStyle="bold"
-                        android:fontFamily="sans-serif"/>
+                        android:textStyle="bold" />
 
 
                     <EditText
@@ -137,78 +141,57 @@
                         android:inputType="textPersonName" />
 
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginBottom="15dp"
                     android:orientation="horizontal"
-                    android:weightSum="1"
-                    android:layout_marginBottom="15dp">
-
-                    <TextView
-                        android:id="@+id/textmood"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Mood:"
-                        android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:textColor="@color/colorPrimaryDark"
-                        android:textSize="8pt"
-                        android:textStyle="bold"
-                        android:fontFamily="sans-serif"/>
+                    android:weightSum="1">
 
 
-                    <EditText
-                        android:id="@+id/mood"
-                        android:layout_width="189dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.78"
-                        android:ems="10"
-                        android:inputType="textPersonName" />
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginBottom="15dp"
                     android:orientation="horizontal"
-                    android:weightSum="1"
-                    android:layout_marginBottom="15dp">
+                    android:weightSum="1">
 
-                    <TextView
-                        android:id="@+id/textcomment"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Comment:"
-                        android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:textColor="@color/colorPrimaryDark"
-                        android:textSize="8pt"
-                        android:textStyle="bold"
-                        android:fontFamily="sans-serif"/>
-
-
-                    <EditText
-                        android:id="@+id/comment"
-                        android:layout_width="152dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.79"
-                        android:ems="10"
-                        android:inputType="textPersonName" />
 
                 </LinearLayout>
 
                 <Button
                     android:id="@+id/add"
-                    android:layout_width="186dp"
+                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                    android:layout_width="235dp"
                     android:layout_height="50dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="30dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="30dp"
-                    android:layout_marginTop="50dp"
-                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="10dp"
                     android:background="@drawable/buttonshape"
+                    android:fontFamily="sans-serif"
                     android:text="ADD SESSION"
                     android:textAlignment="center"
+                    android:textColor="#fff"
                     android:textSize="8pt"
-                    android:textStyle="bold"
-                    android:fontFamily="sans-serif"
-                    android:textColor="#fff" />
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/SendDataChecklist"
+                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:background="@android:color/holo_green_light"
+                    android:text="Send Data Checklist"
+                    android:textColor="@color/common_google_signin_btn_text_dark_default" />
+                <![CDATA[
+
                 />
+            ]]>
             </LinearLayout>
 
         </LinearLayout>

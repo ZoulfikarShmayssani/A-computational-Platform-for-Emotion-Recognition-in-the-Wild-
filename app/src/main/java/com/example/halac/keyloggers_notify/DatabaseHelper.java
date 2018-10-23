@@ -15,9 +15,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public final static String COL_1 = "FirstName";
     public final static String COL_2 = "LastName";
     public final static String COL_3 = "age";
-    public final static String COL_4 = "mood";
-    public final static String COL_5 = "gender";
-    public final static String COL_6 = "comment";
+    public final static String COL_4 = "gender";
+
 
     public final static String Extraction_Table = "Extraction";
     public final static String ECOL_1 = "Type";
@@ -33,7 +32,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table " + TABLE_NAME + "(ID INTEGER PRIMARY KEY AUTOINCREMENT," + COL_1 + " TEXT," + COL_2 +
-                " TEXT," + COL_3 + " TEXT," + COL_4 + " TEXT," + COL_5 + " TEXT," + COL_6 + " TEXT);");
+                " TEXT," + COL_3 + " TEXT," + COL_4 + " TEXT);");
 
         db.execSQL("create table " + Extraction_Table + "(ID INTEGER PRIMARY KEY AUTOINCREMENT," + ECOL_1 + " TEXT," + ECOL_2 +
                 " TEXT," + ECOL_3 + " INTEGER);");
@@ -46,15 +45,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void insertUser(String firstName, String lastName, String age, String mood, String gender, String comment) {
+    public void insertUser(String firstName, String lastName, String age, String gender) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_1, firstName);
         contentValues.put(COL_2, lastName);
         contentValues.put(COL_3, age);
-        contentValues.put(COL_4, mood);
-        contentValues.put(COL_5, gender);
-        contentValues.put(COL_6, comment);
+        contentValues.put(COL_4, gender);
+
         db.insert(TABLE_NAME, null, contentValues);
     }
 
@@ -68,10 +66,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String firstName = cursor.getString(cursor.getColumnIndex(COL_1));
                 String lastName = cursor.getString(cursor.getColumnIndex(COL_2));
                 String age = cursor.getString(cursor.getColumnIndex(COL_3));
-                String mood = cursor.getString(cursor.getColumnIndex(COL_4));
-                String gender = cursor.getString(cursor.getColumnIndex(COL_5));
-                String comment = cursor.getString(cursor.getColumnIndex(COL_6));
-                u = new Users(firstName, lastName, age, mood, gender, comment);
+                String gender = cursor.getString(cursor.getColumnIndex(COL_4));
+                u = new Users(firstName, lastName, age, gender);
             }
             while (cursor.moveToNext());
         }

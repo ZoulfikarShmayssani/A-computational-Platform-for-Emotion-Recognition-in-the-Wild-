@@ -391,7 +391,7 @@ public class RegistrableSensorManager extends Service {
         f.addExtractor(new ExtractTimeSpent(listLogs, ".*(Facebook).*"));
 
         //get time in Whatsapp (9)
-        f.addExtractor(new ExtractTimeSpent(listLogs, ".*(Whatsapp).*"));
+        f.addExtractor(new ExtractTimeSpent(listLogs, ".*(WhatsApp).*"));
 
         //get time in Instagram (10)
         f.addExtractor(new ExtractTimeSpent(listLogs, ".*(Instagram).*"));
@@ -409,7 +409,7 @@ public class RegistrableSensorManager extends Service {
         f.addExtractor(new ExtractTimeSpent(listLogs, ".*(YouTube).*"));
 
         //time spent in games (15)
-        f.addExtractor(new ExtractTimeSpent(listLogs, ".*(PrincessSalon|Candy Crush Saga|Six Guns).*"));
+        f.addExtractor(new ExtractTimeSpent(listLogs, ".*(PrincessSalon|Candy Crush Saga|Six Guns|8 Ball Pool|Subway Surfers|Clash of Clans|Clash Royale|Hay Day|Pou|PUBG MOBILE).*"));
 
         //get number of  Camera (16)
         f.addExtractor(new ExtractAppCount(listLogs, "[Camera]"));
@@ -418,7 +418,7 @@ public class RegistrableSensorManager extends Service {
         f.addExtractor(new ExtractAppCount(listLogs, "[Phone]"));
 
         // count calls (18)
-        f.addExtractor(new ExtractAppCount(listLogs, "[Dialing"));
+        f.addExtractor(new ExtractAppCount(listLogs, "[Dialling"));
 
         //add social media ??
 
