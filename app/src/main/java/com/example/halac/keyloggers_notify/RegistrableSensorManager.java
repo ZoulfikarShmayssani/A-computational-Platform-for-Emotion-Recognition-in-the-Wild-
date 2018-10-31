@@ -9,78 +9,56 @@ import android.content.pm.PackageManager;
 import android.hardware.SensorManager;
 import android.location.LocationManager;
 import android.media.MediaRecorder;
-import android.net.Uri;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class RegistrableSensorManager extends Service {
+    private final int eventsPeriod = 20; // in seconds
+    private final int audioPeriod = 60; // in seconds
+    private final int audioLength = 10; // in seconds
+    public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static RegistrableSensorManager Instance;
     private static SensorManager sensorManager;
     private static LocationManager locationManager;
     private static MyLocationListener locationListener;
-    FileOutputStream fileOutputStream;
-    MediaRecorder recorder;
-    File audioRecordFolder;
-    Handler handler1 = new Handler();
-    DatabaseHelper db = new DatabaseHelper(this);
-    public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    CSVPrinter csvPrinter;
+    private DatabaseHelper db = new DatabaseHelper(this);
+    private MediaRecorder recorder;
+    private File audioRecordFolder;
+    private Handler handler1 = new Handler();
+    private CSVPrinter eventCounts;
+    private CSVPrinter sensorData;
+    private RegistrableSensorEventListener[] sensors;
+    private boolean[] registered;
+    private Timer sensorsTimer;
+    private Timer eventsTimer;
+    private Timer audioTimer;
 
-    Runnable runnable4 = new Runnable() {
+    private Runnable runnable = new Runnable() {
         @Override
         public void run() {
             recorder.stop();
             recorder.reset();
             recorder.release();
         }
-
     };
-    private RegistrableSensorEventListener[] sensors;
-    private boolean[] registered;
-    private Timer timer;
-    private Timer audioTimer;
-
-    public static SensorManager getSensorManager() {
-        if (sensorManager == null) {
-            throw new RuntimeException("RegistrableSensorManager service hasn't start yet!!");
-        }
-
-        return sensorManager;
-    }
 
     private static String join(double[] values, String delimeter) {
         StringBuilder sb = new StringBuilder();
@@ -112,8 +90,45 @@ public class RegistrableSensorManager extends Service {
         return sb.toString();
     }
 
+    public static SensorManager getSensorManager() {
+        if (sensorManager == null) {
+            throw new RuntimeException("RegistrableSensorManager service hasn't start yet!!");
+        }
+
+        return sensorManager;
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        String parent = getFilesDir().toString();
+        try {
+            eventCounts = new CSVPrinter(new BufferedWriter(new FileWriter(parent + "/eventCounts.csv")), CSVFormat.DEFAULT
+                    .withHeader("time", "click #", "long click #", "scrolls #", "text #", "focused #", "window changed #", "logs #",
+                            "time facebook", "time whatsapp", "time instagram", "time camera", "time gallery", "time email",
+                            "time youtube", "time games", "camera #", "phone #", "calls #", "words #", "search #", "youtube vid #", "key logs"));//what is number of phone(phone #)??!?!?
+            List<String> sensorFileHeaders = new ArrayList<>();
+            sensorFileHeaders.add("Time");
+            sensorFileHeaders.add("GPS");
+
+            for (RegistrableSensorEventListener sensor: sensors)
+            {
+                sensorFileHeaders.add(sensor.type.toString());
+            }
+
+            String[] headers = new String[sensorFileHeaders.size()];
+            sensorFileHeaders.toArray(headers);
+            sensorData = new CSVPrinter(new BufferedWriter(new FileWriter(parent + "/sensorData.csv")), CSVFormat.DEFAULT.withHeader(headers));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        registerAll();
+        writePeriodicSensorMeasurements();
+        writePeriodicEventsCounts();
+        recordPeriodicClips();
+
         return Service.START_STICKY;
     }
 
@@ -135,94 +150,31 @@ public class RegistrableSensorManager extends Service {
         registered = new boolean[sensors.length];
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new MyLocationListener();
-        timer = new Timer();
+        sensorsTimer = new Timer();
+        eventsTimer = new Timer();
         audioTimer = new Timer();
-        String parent;
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
-        {
-            parent = getFilesDir().toString();
-        }
-        else
-        {
-            parent = Environment.getExternalStorageDirectory().toString();
-        }
-        File csv = new File(parent, "sensorData.csv");
+        String parent = getFilesDir().toString();
         audioRecordFolder = new File(parent, "AudioRecord");
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(parent + "/eventCounts.csv"));
-            csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
-                    .withHeader("time", "click #", "long click #", "scrolls #", "text #", "focused #", "window changed #", "logs #",
-                    "time facebook", "time whatsapp", "time instagram", "time camera", "time gallery", "time email",
-                    "time youtube", "time games", "camera #", "phone #", "calls #", "words #", "search #", "youtube vid #", "key logs"));//what is number of phone(phone #)??!?!?
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        if(audioRecordFolder.exists() || !audioRecordFolder.isDirectory())
+        {
+            audioRecordFolder.mkdirs();
         }
-        // TODO: take into consideration that the user might revoke permissions later
-        try {
-            if(audioRecordFolder.exists() || !audioRecordFolder.isDirectory())
-            {
-                audioRecordFolder.mkdirs();
-            }
-            if (!csv.exists() || !csv.isFile()) {
-                csv.createNewFile();
-                PrintStream stream = new PrintStream(csv);
-                stream.print("Time,GPS");
-
-                for (RegistrableSensorEventListener sensor : sensors) {
-                    stream.print("," + sensor.type);
-                }
-
-                stream.print('\n');
-                stream.close();
-            }
-
-            fileOutputStream = new FileOutputStream(csv, true);
-
-            //Uploading file to firebase
-            FirebaseStorage storage = FirebaseStorage.getInstance();
-            // Create a storage reference from our app
-            StorageReference storageRef = storage.getReference();
-            File path = Environment.getExternalStorageDirectory();
-            Uri file = Uri.fromFile(new File(csv.getAbsolutePath()));
-            StorageReference riversRef = storageRef.child("Sensors/" + file.getLastPathSegment());
-            UploadTask uploadTask = riversRef.putFile(file);
-
-            // Register observers to listen for when the download is done or if it fails
-            uploadTask.addOnFailureListener(new OnFailureListener() {
-
-                public void onFailure(@NonNull Exception exception) {
-                    // Handle unsuccessful uploads
-                }
-            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                    // ...
-                }
-            });
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        registerAll();
-        writePeriodicMeasurements();
-        recordPeriodicClips();
-
     }
 
     @Override
     public void onDestroy() {
+        sensorsTimer.cancel();
+        eventsTimer.cancel();
+        audioTimer.cancel();
+
         try {
-            fileOutputStream.close();
+            sensorData.close();
+            eventCounts.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        timer.cancel();
-        audioTimer.cancel();
         unregisterAll();
     }
 
@@ -249,7 +201,7 @@ public class RegistrableSensorManager extends Service {
 //                criteria.setAccuracy(Criteria.ACCURACY_FINE);
 //                criteria.setPowerRequirement(Criteria.POWER_LOW);
 //                criteria.setVerticalAccuracy(Criteria.NO_REQUIREMENT);
-//                criteria.setHorizontalAccuracy(Criteria.ACCURAx`CY_MEDIUM);
+//                criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
 //                criteria.setBearingRequired(false);
 //                criteria.setSpeedRequired(false);
 //                criteria.setCostAllowed(false);
@@ -283,28 +235,25 @@ public class RegistrableSensorManager extends Service {
         }
     }
 
-    public void recordAudio(String fileName) {
+    private void recordAudio(String fileName) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
             try {
                 recorder = new MediaRecorder();
                 String path = audioRecordFolder.getAbsolutePath() + "/" + fileName + ".3gp";
-                String state = android.os.Environment.getExternalStorageState();
-                if (!state.equals(android.os.Environment.MEDIA_MOUNTED)) {
-                }
                 // make sure the directory we plan to store the recording in exists
                 //Sets the audio source to be used for recording.
                 recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
                 //setting 3gp as output format
                 recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
                 recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-                recorder.setMaxDuration(10000);
+                recorder.setMaxDuration(audioLength * 1000);
                 //path of the audio recording to be stored
                 recorder.setOutputFile(path);
                 //Prepares the recorder to begin
                 recorder.prepare();
                 //begins capturing data
                 recorder.start();
-                handler1.postDelayed(runnable4, 10000);
+                handler1.postDelayed(runnable, audioLength * 1000);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -312,16 +261,16 @@ public class RegistrableSensorManager extends Service {
         }
     }
 
-    public void recordPeriodicClips() {
+    private void recordPeriodicClips() {
         audioTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 recordAudio(sdf.format(Calendar.getInstance().getTime()).replace(":", "-"));
             }
-        }, 0, 60000);
+        }, 0, audioPeriod * 1000);
     }
 
-    public void writePeriodicMeasurements() {
+    private void writePeriodicSensorMeasurements() {
         int gcd = MyLocationListener.duration;
 
         for (int i = 0; i < sensors.length; i++) {
@@ -330,38 +279,56 @@ public class RegistrableSensorManager extends Service {
             }
         }
 
-        timer.scheduleAtFixedRate(new TimerTask() {
+        sensorsTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                    writeSensorsData();
+            }
+        }, 0, gcd * 1000);
+
+    }
+
+    private void writePeriodicEventsCounts()
+    {
+        eventsTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 try {
                     writeCounts();
-                    fileOutputStream.write((sdf.format(Calendar.getInstance().getTime()) + "," + join(locationListener.getLastMeasuredValues(), " | ")).getBytes());
-
-                    for (RegistrableSensorEventListener sensor : sensors) {
-                        fileOutputStream.write(("," + join(sensor.getLastMeasuredValues(), " | ")).getBytes());
-                    }
-
-                    fileOutputStream.write("\n".getBytes());
-                } catch (IOException e) {
-                    e.printStackTrace();
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             }
-        }, 0, gcd * 1000);
+        }, 0, eventsPeriod * 1000);
+    }
 
+    private void writeSensorsData()
+    {
+        List<String> sensorsData = new ArrayList<>();
+        sensorsData.add(sdf.format(Calendar.getInstance().getTime()));
+        sensorsData.add(join(locationListener.getLastMeasuredValues(), " | "));
+
+        for (RegistrableSensorEventListener sensor : sensors) {
+            sensorsData.add(join(sensor.getLastMeasuredValues(), " | "));
+        }
+
+        try {
+            sensorData.printRecord(sensorsData);
+            sensorData.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private int gcd(int a, int b) {
         return (b == 0) ? a : gcd(b, a % b);
     }
 
-    public void writeCounts() throws ParseException {
+    private void writeCounts() throws ParseException {
         Calendar cal = Calendar.getInstance();
         long currentTime = cal.getTime().getTime();
         String time = sdf.format(cal.getTime());
-        //TODO: 20000 stands for 20 sec, so make this a variable. also make own timer !!!
-        String where = DatabaseHelper.ECOL_3 + " <= '" + currentTime + "' AND " + DatabaseHelper.ECOL_3 + " >= '" + (currentTime - 20000) + "'";
+        String where = DatabaseHelper.ECOL_3 + " <= '" + currentTime + "' AND " + DatabaseHelper.ECOL_3 + " >= '" + (currentTime - eventsPeriod * 1000) + "'";
         List<Log> listLogs = db.getLogs(where);
 
         FeaturesExtraction f = new FeaturesExtraction();
@@ -452,8 +419,8 @@ public class RegistrableSensorManager extends Service {
 
         try
         {
-            csvPrinter.printRecord(input);
-            csvPrinter.flush();
+            eventCounts.printRecord(input);
+            eventCounts.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
