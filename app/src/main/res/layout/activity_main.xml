@@ -178,19 +178,12 @@
                     android:textAlignment="center"
                     android:textColor="#fff"
                     android:textSize="8pt"
-                    android:textStyle="bold" />
+                    android:textStyle="bold" /><![CDATA[
 
-                <Button
-                    android:id="@+id/SendDataChecklist"
-                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                    android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:background="@android:color/holo_green_light"
-                    android:text="Send Data Checklist"
-                    android:textColor="@color/common_google_signin_btn_text_dark_default" />
-                <![CDATA[
+
 
                 />
+
             ]]>
             </LinearLayout>
 

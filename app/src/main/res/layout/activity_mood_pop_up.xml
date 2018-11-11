@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <RadioButton
+            android:id="@+id/Angry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/Neutral"
+            android:layout_weight="1"
+            android:text="Angry" />
+
+        <RadioButton
+            android:id="@+id/Neutral"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/Sad"
+            android:layout_weight="1"
+            android:text="Neutral" />
+
+        <RadioButton
+            android:id="@+id/Sad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/Happy"
+            android:layout_weight="1"
+            android:text="Sad" />
+
+        <RadioButton
+            android:id="@+id/Happy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Happy" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/Submit"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="140dp"
+        android:text="Submit" />
+</RelativeLayout>

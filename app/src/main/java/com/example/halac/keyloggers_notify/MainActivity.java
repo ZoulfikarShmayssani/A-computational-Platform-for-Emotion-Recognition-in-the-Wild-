@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
     static public final int REQUEST_LOCATION_AND_AUDIO = 1;
 
     EditText fname, lname, gender, age;
-    Button add,checkList;
+    Button add;
     Boolean flag1 = false;
     Boolean flag2 = false;
     Boolean flag3 = false;
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         gender = (EditText) findViewById(R.id.gender);
         age = (EditText) findViewById(R.id.age);
         add = (Button) findViewById(R.id.add);
-        checkList=(Button)findViewById(R.id.SendDataChecklist);
+
 
         Intent intentService = new Intent(this, MyAccessibilityService.class);
         this.startService(intentService);
@@ -51,20 +51,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 addUser();
+                Intent mood= new Intent(MainActivity.this,MoodPopUp.class );
+                startActivity(mood);
                 Intent redirect = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
                 startActivityForResult(redirect, 1);
-            }
-        });
-
-        checkList.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent confirm= new Intent(MainActivity.this,CheckListActivity.class);
-                startActivity(confirm);
+                //Intent check= new Intent(MainActivity.this, SendDataActivity.class);
+                // startActivity(check);
 
             }
         });
-
 
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -138,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0) {
                     flag2 = true;
-                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true ) {
+                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true) {
                         add.setEnabled(true);
                     }
                 } else {
@@ -161,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0) {
                     flag3 = true;
-                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true ) {
+                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true) {
                         add.setEnabled(true);
                     }
                 } else {
@@ -184,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0) {
                     flag4 = true;
-                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true ) {
+                    if (flag1 == true && flag2 == true && flag3 == true && flag4 == true) {
                         add.setEnabled(true);
                     }
                 } else {

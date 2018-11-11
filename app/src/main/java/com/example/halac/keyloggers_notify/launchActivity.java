@@ -10,6 +10,7 @@ public class launchActivity extends AppCompatActivity {
 
     Button register;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +30,7 @@ public class launchActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        
 
     }
 }
