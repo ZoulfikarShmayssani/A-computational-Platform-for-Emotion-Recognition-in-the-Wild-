@@ -35,6 +35,7 @@ public class RegistrableSensorManager extends Service {
     private final int audioPeriod = 60; // in seconds
     private final int audioLength = 10; // in seconds
     public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static String mood = null;
     public static RegistrableSensorManager Instance;
     private static SensorManager sensorManager;
     private static LocationManager locationManager;
@@ -310,6 +311,12 @@ public class RegistrableSensorManager extends Service {
 
         for (RegistrableSensorEventListener sensor : sensors) {
             sensorsData.add(join(sensor.getLastMeasuredValues(), " | "));
+        }
+
+        if(mood != null)
+        {
+            sensorsData.add(mood);
+            mood = null;
         }
 
         try {

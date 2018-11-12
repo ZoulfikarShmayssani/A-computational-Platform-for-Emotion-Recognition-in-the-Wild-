@@ -7,13 +7,14 @@ android {
         applicationId "com.example.halac.keyloggers_notify"
         minSdkVersion 15
         targetSdkVersion 26
+        multiDexEnabled true
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -45,7 +46,7 @@ dependencies {
     compile "org.apache.commons:commons-csv:1.5"
     testCompile 'junit:junit:4.12'
     compile 'com.dropbox.core:dropbox-core-sdk:3.0.10'
-
+    compile 'com.android.support:multidex:1.0.3'
 }
 
 

@@ -12,6 +12,12 @@
 
     </ListView>
 
+    <TextView
+        android:id="@+id/fileSize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp" />
+
     <Button
         android:id="@+id/SubmitData"
         style="@style/Widget.AppCompat.Button.Colored"

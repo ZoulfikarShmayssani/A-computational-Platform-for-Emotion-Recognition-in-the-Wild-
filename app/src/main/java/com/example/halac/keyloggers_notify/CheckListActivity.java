@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.format.Formatter;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -18,6 +21,7 @@ import java.util.List;
 public class CheckListActivity extends AppCompatActivity implements Button.OnClickListener {
     private ListView listView;
     private Button SubmitData, Cancel;
+    private TextView fileSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +30,14 @@ public class CheckListActivity extends AppCompatActivity implements Button.OnCli
 
         findViewsById();
 
+        RegistrableSensorManager rsm = RegistrableSensorManager.Instance;
+        String parent = rsm.getFilesDir().toString() + "/";
+        String zipName = parent + "testArchive.zip";
+        String[] fileList = { parent + "eventCounts.csv", parent + "sensorData.csv", parent + "AudioRecord"};
+        Uploader.zipFiles(fileList, zipName);
+        File file = new File(zipName);
+        fileSize.setText("Approximate maximum file size: " + Formatter.formatShortFileSize(rsm, file.length()));
+        file.delete();
         String[] elements = getResources().getStringArray(R.array.elements);
         CustomAdapter adapter = new CustomAdapter(this, elements);
 
@@ -64,7 +76,7 @@ public class CheckListActivity extends AppCompatActivity implements Button.OnCli
         listView = (ListView) findViewById(R.id.list);
         SubmitData = (Button) findViewById(R.id.SubmitData);
         Cancel=(Button)findViewById(R.id.cancel);
-
+        fileSize=(TextView) findViewById(R.id.fileSize);
     }
 
     private List<String> getSelectedItems() {
