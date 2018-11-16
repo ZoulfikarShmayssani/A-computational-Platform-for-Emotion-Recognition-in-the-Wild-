@@ -9,12 +9,13 @@ import android.widget.Button;
 public class SendDataActivity extends AppCompatActivity {
 
 
-    Button checkList = (Button) findViewById(R.id.SendDataChecklist);
+    Button checkList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_data);
+        checkList = (Button) findViewById(R.id.SendDataChecklist);
         checkList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -23,5 +24,6 @@ public class SendDataActivity extends AppCompatActivity {
 
             }
         });
+
     }
 }

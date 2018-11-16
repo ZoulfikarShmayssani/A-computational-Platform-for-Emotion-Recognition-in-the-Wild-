@@ -11,28 +11,28 @@
             android:id="@+id/Angry"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/Neutral"
+            android:layout_below="@+id/Anxious"
             android:layout_weight="1"
             android:text="Angry" />
 
         <RadioButton
-            android:id="@+id/Neutral"
+            android:id="@+id/Anxious"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/Sad"
             android:layout_weight="1"
-            android:text="Neutral" />
+            android:text="Anxoius" />
 
         <RadioButton
             android:id="@+id/Sad"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/Happy"
+            android:layout_below="@+id/Anxious"
             android:layout_weight="1"
             android:text="Sad" />
 
         <RadioButton
-            android:id="@+id/Happy"
+            android:id="@+id/Anxious"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"

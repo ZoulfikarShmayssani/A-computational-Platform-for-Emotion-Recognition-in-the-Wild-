@@ -31,15 +31,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class RegistrableSensorManager extends Service {
-    private final int eventsPeriod = 20; // in seconds
-    private final int audioPeriod = 60; // in seconds
-    private final int audioLength = 10; // in seconds
     public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static String mood = null;
     public static RegistrableSensorManager Instance;
     private static SensorManager sensorManager;
     private static LocationManager locationManager;
     private static MyLocationListener locationListener;
+    private final int eventsPeriod = 20; // in seconds
+    private final int audioPeriod = 60; // in seconds
+    private final int audioLength = 10; // in seconds
     private DatabaseHelper db = new DatabaseHelper(this);
     private MediaRecorder recorder;
     private File audioRecordFolder;
@@ -55,7 +55,12 @@ public class RegistrableSensorManager extends Service {
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            recorder.stop();
+            if (recorder != null) {
+                try {
+                    recorder.stop();
+                } catch (RuntimeException ex) {
+                }
+            }
             recorder.reset();
             recorder.release();
         }
@@ -111,8 +116,7 @@ public class RegistrableSensorManager extends Service {
             sensorFileHeaders.add("Time");
             sensorFileHeaders.add("GPS");
 
-            for (RegistrableSensorEventListener sensor: sensors)
-            {
+            for (RegistrableSensorEventListener sensor : sensors) {
                 sensorFileHeaders.add(sensor.type.toString());
             }
 
@@ -157,8 +161,7 @@ public class RegistrableSensorManager extends Service {
         String parent = getFilesDir().toString();
         audioRecordFolder = new File(parent, "AudioRecord");
 
-        if(audioRecordFolder.exists() || !audioRecordFolder.isDirectory())
-        {
+        if (audioRecordFolder.exists() || !audioRecordFolder.isDirectory()) {
             audioRecordFolder.mkdirs();
         }
     }
@@ -283,14 +286,13 @@ public class RegistrableSensorManager extends Service {
         sensorsTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                    writeSensorsData();
+                writeSensorsData();
             }
         }, 0, gcd * 1000);
 
     }
 
-    private void writePeriodicEventsCounts()
-    {
+    private void writePeriodicEventsCounts() {
         eventsTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -303,8 +305,7 @@ public class RegistrableSensorManager extends Service {
         }, 0, eventsPeriod * 1000);
     }
 
-    private void writeSensorsData()
-    {
+    private void writeSensorsData() {
         List<String> sensorsData = new ArrayList<>();
         sensorsData.add(sdf.format(Calendar.getInstance().getTime()));
         sensorsData.add(join(locationListener.getLastMeasuredValues(), " | "));
@@ -313,8 +314,7 @@ public class RegistrableSensorManager extends Service {
             sensorsData.add(join(sensor.getLastMeasuredValues(), " | "));
         }
 
-        if(mood != null)
-        {
+        if (mood != null) {
             sensorsData.add(mood);
             mood = null;
         }
@@ -409,23 +409,20 @@ public class RegistrableSensorManager extends Service {
         List<String> input = new ArrayList<>();
         input.add(time);
 
-        for(FeatureExtractor fe: f.getFreatures())
-        {
+        for (FeatureExtractor fe : f.getFreatures()) {
             input.add(fe.toString());
         }
 
         StringBuilder sb = new StringBuilder();
 
-        for (Log log: listLogs)
-        {
-            if(log.getType().equals("TEXT")) {
+        for (Log log : listLogs) {
+            if (log.getType().equals("TEXT")) {
                 sb.append(log.getContext() + "\n");
             }
         }
         input.add(sb.toString());
 
-        try
-        {
+        try {
             eventCounts.printRecord(input);
             eventCounts.flush();
         } catch (IOException e) {

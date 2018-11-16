@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class CheckListActivity extends AppCompatActivity implements Button.OnClickListener {
@@ -54,6 +55,12 @@ public class CheckListActivity extends AppCompatActivity implements Button.OnCli
         switch (view.getId()) {
             case R.id.SubmitData:
                 final List<String> selected = getSelectedItems();
+                StringBuilder builder = new StringBuilder();
+                for (String value : selected) {
+                    builder.append(value+" ,");
+                }
+                String text = builder.toString();
+
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -64,6 +71,8 @@ public class CheckListActivity extends AppCompatActivity implements Button.OnCli
                         }
                     }
                 }).start();
+                finish();
+                Toast.makeText(getApplicationContext(), text+" are successfully sent",Toast.LENGTH_LONG).show();
                 break;
 
             case R.id.cancel:

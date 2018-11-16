@@ -15,7 +15,7 @@ import android.widget.EditText;
 
 
 public class MainActivity extends AppCompatActivity {
-    static public final int REQUEST_LOCATION_AND_AUDIO = 1;
+
 
     EditText fname, lname, gender, age;
     Button add;
@@ -60,28 +60,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.RECORD_AUDIO}, REQUEST_LOCATION_AND_AUDIO);
-        } else {
-            runService();
-        }
-    }
-
-    private void runService() {
-        startService(new Intent(this, RegistrableSensorManager.class));
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_LOCATION_AND_AUDIO:
-                runService();
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
     }
 
 

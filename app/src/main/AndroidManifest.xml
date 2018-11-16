@@ -40,7 +40,7 @@
             -->
         </service>
 
-        <activity android:name=".launchActivity">
+        <activity android:name=".EmptyActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -48,9 +48,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
+        <activity android:name=".launchActivity" />
         <activity android:name=".CheckListActivity" />
         <activity android:name=".MoodPopUp" />
-        <activity android:name=".SendDataActivity"></activity>
+        <activity android:name=".SendDataActivity" />
     </application>
 
 </manifest>
