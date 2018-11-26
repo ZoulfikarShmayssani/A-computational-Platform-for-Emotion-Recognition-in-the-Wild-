@@ -2,10 +2,13 @@ package com.example.halac.keyloggers_notify;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.SensorManager;
 import android.location.LocationManager;
 import android.media.MediaRecorder;
@@ -13,6 +16,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -40,7 +44,7 @@ public class RegistrableSensorManager extends Service {
     private final int eventsPeriod = 20; // in seconds
     private final int audioPeriod = 60; // in seconds
     private final int audioLength = 10; // in seconds
-    private DatabaseHelper db = new DatabaseHelper(this);
+    public DatabaseHelper db = new DatabaseHelper(this);
     private MediaRecorder recorder;
     private File audioRecordFolder;
     private Handler handler1 = new Handler();
@@ -106,34 +110,43 @@ public class RegistrableSensorManager extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String parent = getFilesDir().toString();
-        try {
-            eventCounts = new CSVPrinter(new BufferedWriter(new FileWriter(parent + "/eventCounts.csv")), CSVFormat.DEFAULT
-                    .withHeader("time", "click #", "long click #", "scrolls #", "text #", "focused #", "window changed #", "logs #",
-                            "time facebook", "time whatsapp", "time instagram", "time camera", "time gallery", "time email",
-                            "time youtube", "time games", "camera #", "phone #", "calls #", "words #", "search #", "youtube vid #", "key logs"));//what is number of phone(phone #)??!?!?
-            List<String> sensorFileHeaders = new ArrayList<>();
-            sensorFileHeaders.add("Time");
-            sensorFileHeaders.add("GPS");
+        if (intent != null && intent.getAction().startsWith("com.example.halac.keyloggers_notify.action.startforeground")) {
 
-            for (RegistrableSensorEventListener sensor : sensors) {
-                sensorFileHeaders.add(sensor.type.toString());
+            Notification notification = new NotificationCompat.Builder(this).setOngoing(true).build();
+            startForeground(101, notification);
+            if(!intent.getAction().endsWith("again"))
+            {
+                MoodPopUp.activity();
             }
 
-            String[] headers = new String[sensorFileHeaders.size()];
-            sensorFileHeaders.toArray(headers);
-            sensorData = new CSVPrinter(new BufferedWriter(new FileWriter(parent + "/sensorData.csv")), CSVFormat.DEFAULT.withHeader(headers));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            String parent = getFilesDir().toString();
+            try {
+                eventCounts = new CSVPrinter(new BufferedWriter(new FileWriter(parent + "/eventCounts.csv")), CSVFormat.DEFAULT
+                        .withHeader("time", "click #", "long click #", "scrolls #", "text #", "focused #", "window changed #", "logs #",
+                                "time facebook", "time whatsapp", "time instagram", "time camera", "time gallery", "time email",
+                                "time youtube", "time games", "camera #", "phone #", "calls #", "words #", "search #", "youtube vid #", "key logs"));//what is number of phone(phone #)??!?!?
+                List<String> sensorFileHeaders = new ArrayList<>();
+                sensorFileHeaders.add("Time");
+                sensorFileHeaders.add("GPS");
+
+                for (RegistrableSensorEventListener sensor : sensors) {
+                    sensorFileHeaders.add(sensor.type.toString());
+                }
+
+                String[] headers = new String[sensorFileHeaders.size()];
+                sensorFileHeaders.toArray(headers);
+                sensorData = new CSVPrinter(new BufferedWriter(new FileWriter(parent + "/sensorData.csv")), CSVFormat.DEFAULT.withHeader(headers));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            registerAll();
+            writePeriodicSensorMeasurements();
+            writePeriodicEventsCounts();
+            recordPeriodicClips();
         }
-
-        registerAll();
-        writePeriodicSensorMeasurements();
-        writePeriodicEventsCounts();
-        recordPeriodicClips();
-
         return Service.START_STICKY;
     }
 

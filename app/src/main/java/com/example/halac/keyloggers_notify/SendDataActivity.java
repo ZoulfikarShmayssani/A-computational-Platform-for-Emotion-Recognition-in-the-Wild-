@@ -10,6 +10,7 @@ public class SendDataActivity extends AppCompatActivity {
 
 
     Button checkList;
+    Button emtionSelection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +21,15 @@ public class SendDataActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent confirm = new Intent(SendDataActivity.this, CheckListActivity.class);
+                startActivity(confirm);
+
+            }
+        });
+        emtionSelection = (Button) findViewById(R.id.button2);
+        emtionSelection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent confirm = new Intent(SendDataActivity.this, MoodPopUp.class);
                 startActivity(confirm);
 
             }

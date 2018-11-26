@@ -1,9 +1,11 @@
 package com.example.halac.keyloggers_notify;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -12,8 +14,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MoodPopUp extends AppCompatActivity {
-    private Timer timer;
-
+    private static Timer timer;
+    private static final int timerPeriod = 2 * 60 * 60; // in seconds
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,18 +54,29 @@ public class MoodPopUp extends AppCompatActivity {
                 finish();
             }
         });
-
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                finish();
+            }
+        });
         dialog.show();
 
     }
 
-    private void activity() {
+    public static void activity() {
+        if(timer != null)
+        {
+            timer.cancel();
+            timer = null;
+        }
+        timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                Intent bb = new Intent(MoodPopUp.this, MoodPopUp.class);
-
+                Intent bb = new Intent(RegistrableSensorManager.Instance.getApplicationContext(), MoodPopUp.class);
+                RegistrableSensorManager.Instance.startActivity(bb);
             }
-        }, 0, 10000);
+        }, 0, timerPeriod * 1000);
     }
 }

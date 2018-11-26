@@ -9,7 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp"
         tools:ignore="MissingConstraints">
@@ -17,13 +17,20 @@
         <Button
             android:id="@+id/SendDataChecklist"
             style="@android:style/Widget.Button"
-            android:layout_width="100dp"
-            android:layout_height="64dp"
-            android:layout_marginTop="100pt"
-            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:text="Send Data Checklist"
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="121dp" />
+
+        <Button
+            android:id="@+id/button2"
+            style="@android:style/Widget.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enter current emotion" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

@@ -32,7 +32,9 @@ public class EmptyActivity extends AppCompatActivity {
     }
 
     private void runService() {
-        startService(new Intent(this, RegistrableSensorManager.class));
+        Intent i = new Intent(this, RegistrableSensorManager.class);
+        i.setAction("com.example.halac.keyloggers_notify.action.startforeground");
+        startService(i);
     }
 
     @Override
