@@ -75,6 +75,7 @@ public class MoodPopUp extends AppCompatActivity {
             @Override
             public void run() {
                 Intent bb = new Intent(RegistrableSensorManager.Instance.getApplicationContext(), MoodPopUp.class);
+                bb.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 RegistrableSensorManager.Instance.startActivity(bb);
             }
         }, 0, timerPeriod * 1000);
