@@ -8,25 +8,17 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.view.accessibility.AccessibilityEvent;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
 import java.util.Calendar;
 
 public class MyAccessibilityService extends AccessibilityService {
     int counter = 0;
     String s = "";
     DatabaseHelper db = new DatabaseHelper (this);
-    DatabaseReference database;
     String logs = "Logs";
     String id = "";
 
     @Override
     public void onServiceConnected() {
-        Users user = db.getUser ();
-        database = FirebaseDatabase.getInstance().getReference("Users");
-        id =database.push().getKey();
-        database.child(id).setValue(user);
         AccessibilityServiceInfo info = new AccessibilityServiceInfo();
         info.eventTypes = AccessibilityEvent.TYPE_VIEW_CLICKED |
                 AccessibilityEvent.TYPE_VIEW_FOCUSED|AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED|AccessibilityEvent.TYPE_VIEW_SCROLLED
@@ -38,7 +30,6 @@ public class MyAccessibilityService extends AccessibilityService {
     }
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        //DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.US);
         Long t = Calendar.getInstance().getTime().getTime ();
         String time = t.toString ();
         final int eventType = event.getEventType();
@@ -71,7 +62,9 @@ public class MyAccessibilityService extends AccessibilityService {
                     addLog("TEXT", s, time);
                     counter=0;
                 }
-                if(!data.equals("[]")) addLog("SCROLLED",data,time);
+                if(!data.equals("[]")){
+                    addLog("SCROLLED",data,time);
+                }
                 break;
             case AccessibilityEvent.TYPE_VIEW_LONG_CLICKED:
                 data = event.getText().toString();
@@ -99,9 +92,6 @@ public class MyAccessibilityService extends AccessibilityService {
 
     // addLog for all events except scrolled events
     private void addLog(String type, String context, String date) {
-            /*String key = database.push ().getKey ();
-            Logs l = new Logs (type, context, date);
-            database.child(id).child(logs).child(key).setValue(l);*/
             db.insertLog(type, context, date);
     }
 }

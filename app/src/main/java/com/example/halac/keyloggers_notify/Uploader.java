@@ -74,7 +74,14 @@ public class Uploader {
                 for (int i = 0; i < lines.size(); i++)
                 {
                     String line = lines.get(i);
-                    ps.println(line.substring(0, ithIndexOf(line, ",", splitIndex)));
+                    if(line.endsWith("happy")||line.endsWith("sad")||line.endsWith("anxious")||line.endsWith("angry"))
+                    {
+                        ps.println(line.substring(0, ithIndexOf(line, ",", splitIndex)) + line.substring(line.lastIndexOf(",")));
+                    }
+                    else
+                    {
+                        ps.println(line.substring(0, ithIndexOf(line, ",", splitIndex)));
+                    }
                 }
             }
             else
