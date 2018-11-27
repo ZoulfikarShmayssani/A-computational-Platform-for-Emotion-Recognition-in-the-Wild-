@@ -32,7 +32,7 @@ public class CheckListActivity extends AppCompatActivity implements Button.OnCli
         findViewsById();
 
         RegistrableSensorManager rsm = RegistrableSensorManager.Instance;
-        String parent = rsm.getFilesDir().toString() + "/";
+        String parent = getFilesDir().toString() + "/";
         String zipName = parent + "testArchive.zip";
         String[] fileList = { parent + "eventCounts.csv", parent + "sensorData.csv", parent + "AudioRecord"};
         Uploader.zipFiles(fileList, zipName);

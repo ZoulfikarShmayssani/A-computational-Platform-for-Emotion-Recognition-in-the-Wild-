@@ -5,7 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.util.*;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -24,9 +24,9 @@ public class MoodPopUp extends AppCompatActivity {
         dialog.setContentView(R.layout.activity_mood_pop_up);
         dialog.setTitle("How do you feel?");
         dialog.setCancelable(true);
-        final RadioButton rd1 = (RadioButton) dialog.findViewById(R.id.Anxious);
+        final RadioButton rd1 = (RadioButton) dialog.findViewById(R.id.Happy);
         final RadioButton rd2 = (RadioButton) dialog.findViewById(R.id.Sad);
-        final RadioButton rd3 = (RadioButton) dialog.findViewById(R.id.Anxious);
+        final RadioButton rd3 = (RadioButton) dialog.findViewById(R.id.Anxoius);
         final RadioButton rd4 = (RadioButton) dialog.findViewById(R.id.Angry);
         Button submit = (Button) dialog.findViewById(R.id.Submit);
 
@@ -65,19 +65,18 @@ public class MoodPopUp extends AppCompatActivity {
     }
 
     public static void activity() {
-        if(timer != null)
+        if(timer == null)
         {
-            timer.cancel();
-            timer = null;
+            android.util.Log.d("TimerCheck", "started");
+            timer = new Timer();
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    Intent bb = new Intent(RegistrableSensorManager.Instance.getApplicationContext(), MoodPopUp.class);
+                    bb.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    RegistrableSensorManager.Instance.startActivity(bb);
+                }
+            }, timerPeriod * 1000, timerPeriod * 1000);
         }
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                Intent bb = new Intent(RegistrableSensorManager.Instance.getApplicationContext(), MoodPopUp.class);
-                bb.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                RegistrableSensorManager.Instance.startActivity(bb);
-            }
-        }, 0, timerPeriod * 1000);
     }
 }
