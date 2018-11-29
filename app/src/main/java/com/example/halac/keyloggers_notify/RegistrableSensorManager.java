@@ -121,10 +121,20 @@ public class RegistrableSensorManager extends Service {
 
             String parent = getFilesDir().toString();
             try {
-                eventCounts = new CSVPrinter(new BufferedWriter(new FileWriter(parent + "/eventCounts.csv")), CSVFormat.DEFAULT
-                        .withHeader("time", "click #", "long click #", "scrolls #", "text #", "focused #", "window changed #", "logs #",
-                                "time facebook", "time whatsapp", "time instagram", "time camera", "time gallery", "time email",
-                                "time youtube", "time games", "camera #", "phone #", "calls #", "words #", "search #", "youtube vid #", "key logs"));//what is number of phone(phone #)??!?!?
+                File eventCountsFile = new File(parent + "/eventCounts.csv");
+                CSVFormat eventCountsFileFormat = CSVFormat.DEFAULT;
+                File sensorDataFile = new File(parent + "/sensorData.csv");
+                CSVFormat sensorDataFileFormat = CSVFormat.DEFAULT;
+
+                if(!eventCountsFile.exists())
+                {
+                    eventCountsFileFormat = CSVFormat.DEFAULT
+                            .withHeader("time", "click #", "long click #", "scrolls #", "text #", "focused #", "window changed #", "logs #",
+                                    "time facebook", "time whatsapp", "time instagram", "time camera", "time gallery", "time email",
+                                    "time youtube", "time games", "camera #", "phone #", "calls #", "words #", "search #", "youtube vid #", "key logs");//what is number of phone(phone #)??!?!?
+                }
+
+                eventCounts = new CSVPrinter(new BufferedWriter(new FileWriter(eventCountsFile, true)), eventCountsFileFormat);
                 List<String> sensorFileHeaders = new ArrayList<>();
                 sensorFileHeaders.add("Time");
                 sensorFileHeaders.add("GPS");
@@ -135,7 +145,13 @@ public class RegistrableSensorManager extends Service {
 
                 String[] headers = new String[sensorFileHeaders.size()];
                 sensorFileHeaders.toArray(headers);
-                sensorData = new CSVPrinter(new BufferedWriter(new FileWriter(parent + "/sensorData.csv")), CSVFormat.DEFAULT.withHeader(headers));
+
+                if(!sensorDataFile.exists())
+                {
+                    sensorDataFileFormat = CSVFormat.DEFAULT.withHeader(headers);
+                }
+
+                sensorData = new CSVPrinter(new BufferedWriter(new FileWriter(sensorDataFile, true)), sensorDataFileFormat);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
