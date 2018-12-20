@@ -14,8 +14,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MoodPopUp extends AppCompatActivity {
-    private static Timer timer;
-    private static final int timerPeriod = 2 * 60 * 60; // in seconds
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,21 +60,5 @@ public class MoodPopUp extends AppCompatActivity {
         });
         dialog.show();
 
-    }
-
-    public static void activity() {
-        if(timer == null)
-        {
-            android.util.Log.d("TimerCheck", "started");
-            timer = new Timer();
-            timer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    Intent bb = new Intent(RegistrableSensorManager.Instance.getApplicationContext(), MoodPopUp.class);
-                    bb.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    RegistrableSensorManager.Instance.startActivity(bb);
-                }
-            }, timerPeriod * 1000, timerPeriod * 1000);
-        }
     }
 }

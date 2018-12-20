@@ -15,6 +15,7 @@ import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 
@@ -41,9 +42,11 @@ public class RegistrableSensorManager extends Service {
     private static SensorManager sensorManager;
     private static LocationManager locationManager;
     private static MyLocationListener locationListener;
+    private static PowerManager.WakeLock wl;
     private final int eventsPeriod = 20; // in seconds
     private final int audioPeriod = 60; // in seconds
     private final int audioLength = 10; // in seconds
+    private static final int popupPeriod = 2 * 60 * 60; // in seconds
     public DatabaseHelper db = new DatabaseHelper(this);
     private MediaRecorder recorder;
     private File audioRecordFolder;
@@ -52,9 +55,6 @@ public class RegistrableSensorManager extends Service {
     private CSVPrinter sensorData;
     private RegistrableSensorEventListener[] sensors;
     private boolean[] registered;
-    private Timer sensorsTimer;
-    private Timer eventsTimer;
-    private Timer audioTimer;
 
     private Runnable runnable = new Runnable() {
         @Override
@@ -67,6 +67,16 @@ public class RegistrableSensorManager extends Service {
             }
             recorder.reset();
             recorder.release();
+        }
+    };
+
+    private Runnable popupRunnable = new Runnable() {
+        @Override
+        public void run() {
+            Intent bb = new Intent(RegistrableSensorManager.Instance.getApplicationContext(), MoodPopUp.class);
+            bb.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            RegistrableSensorManager.Instance.startActivity(bb);
+            handler1.postDelayed(this, popupPeriod * 1000);
         }
     };
 
@@ -116,7 +126,7 @@ public class RegistrableSensorManager extends Service {
             startForeground(101, notification);
             if(!intent.getAction().endsWith("again"))
             {
-                MoodPopUp.activity();
+                handler1.postDelayed(popupRunnable, popupPeriod * 1000);
             }
 
             String parent = getFilesDir().toString();
@@ -169,6 +179,8 @@ public class RegistrableSensorManager extends Service {
     @Override
     public void onCreate() {
         Instance = this;
+        wl = ((PowerManager)getSystemService(Context.POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wake lock");
+        wl.acquire();
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         RegistrableSensorEventListener[] sensors = {
                 new RegistrableSensorEventListener(RegistrableSensorType.humidity, 20),
@@ -184,9 +196,6 @@ public class RegistrableSensorManager extends Service {
         registered = new boolean[sensors.length];
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new MyLocationListener();
-        sensorsTimer = new Timer();
-        eventsTimer = new Timer();
-        audioTimer = new Timer();
         String parent = getFilesDir().toString();
         audioRecordFolder = new File(parent, "AudioRecord");
 
@@ -197,9 +206,9 @@ public class RegistrableSensorManager extends Service {
 
     @Override
     public void onDestroy() {
-        sensorsTimer.cancel();
-        eventsTimer.cancel();
-        audioTimer.cancel();
+        handler1.removeCallbacks(audioRunnable);
+        handler1.removeCallbacks(sensorsRunnable);
+        handler1.removeCallbacks(eventsRunnable);
 
         try {
             sensorData.close();
@@ -209,6 +218,7 @@ public class RegistrableSensorManager extends Service {
         }
 
         unregisterAll();
+        wl.release();
     }
 
     public boolean registerSensor(RegistrableSensorType type) {
@@ -294,17 +304,29 @@ public class RegistrableSensorManager extends Service {
         }
     }
 
+    Runnable audioRunnable = new Runnable() {
+        @Override
+        public void run() {
+            recordAudio(sdf.format(Calendar.getInstance().getTime()).replace(":", "-"));
+            handler1.postDelayed(this, audioPeriod * 1000);
+        }
+    };
+
     private void recordPeriodicClips() {
-        audioTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                recordAudio(sdf.format(Calendar.getInstance().getTime()).replace(":", "-"));
-            }
-        }, 0, audioPeriod * 1000);
+        handler1.post(audioRunnable);
     }
 
+    int gcd;
+    Runnable sensorsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            writeSensorsData();
+            handler1.postDelayed(this, gcd * 1000);
+        }
+    };
+
     private void writePeriodicSensorMeasurements() {
-        int gcd = MyLocationListener.duration;
+        gcd = MyLocationListener.duration;
 
         for (int i = 0; i < sensors.length; i++) {
             if (registered[i]) {
@@ -312,26 +334,23 @@ public class RegistrableSensorManager extends Service {
             }
         }
 
-        sensorsTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                writeSensorsData();
-            }
-        }, 0, gcd * 1000);
-
+        handler1.post(sensorsRunnable);
     }
 
-    private void writePeriodicEventsCounts() {
-        eventsTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    writeCounts();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+    Runnable eventsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                writeCounts();
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
-        }, 0, eventsPeriod * 1000);
+            handler1.postDelayed(this, eventsPeriod * 1000);
+        }
+    };
+
+    private void writePeriodicEventsCounts() {
+        handler1.post(eventsRunnable);
     }
 
     private void writeSensorsData() {
