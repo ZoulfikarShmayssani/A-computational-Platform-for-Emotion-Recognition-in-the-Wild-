@@ -10,17 +10,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp"
-        tools:ignore="MissingConstraints">
+        tools:layout_editor_absoluteY="16dp">
 
         <Button
             android:id="@+id/SendDataChecklist"
             style="@android:style/Widget.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
             android:text="Send Data Checklist"
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="121dp" />
@@ -31,6 +31,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Enter current emotion" />
+
+        <Button
+            android:id="@+id/MindwaveData"
+            style="@android:style/Widget.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8pt"
+            android:text="Mindwave Data"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
