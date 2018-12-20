@@ -11,6 +11,7 @@ public class SendDataActivity extends AppCompatActivity {
 
     Button checkList;
     Button emtionSelection;
+    Button mindWave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +35,14 @@ public class SendDataActivity extends AppCompatActivity {
 
             }
         });
+        mindWave = (Button) findViewById(R.id.MindwaveData);
+        mindWave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent confirm = new Intent(SendDataActivity.this, MindWaveSensor.class);
+                startActivity(confirm);
 
+            }
+        });
     }
 }

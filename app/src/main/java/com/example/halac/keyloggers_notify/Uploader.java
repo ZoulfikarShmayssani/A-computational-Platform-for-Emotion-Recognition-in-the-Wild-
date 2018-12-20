@@ -32,7 +32,7 @@ import java.util.zip.ZipOutputStream;
 public class Uploader {
     private static final String ACCESS_TOKEN = "PQ1-gA3ADaYAAAAAAAAASRr_mmSTWeOMIJpu71uUbRVoaJMZebTH-H1mNyFhiQxA";
 
-    public static void upload(boolean audio, boolean keyLogger, boolean gps, boolean times, boolean sensors) throws IOException {
+    public static void upload(boolean audio, boolean keyLogger, boolean gps, boolean times, boolean sensors, boolean mindWave) throws IOException {
         RegistrableSensorManager rsm = RegistrableSensorManager.Instance;
         Intent service = new Intent(rsm.getApplicationContext(), RegistrableSensorManager.class);
         service.setAction("com.example.halac.keyloggers_notify.action.startforegroundagain");
@@ -47,6 +47,11 @@ public class Uploader {
         if(audio)
         {
             filesToUpload.add(parent + "AudioRecord");
+        }
+
+        if(mindWave)
+        {
+            filesToUpload.add(parent + "mindWave.csv");
         }
 
         if(gps && sensors)

@@ -43,6 +43,7 @@
         <activity android:name=".CheckListActivity" />
         <activity android:name=".MoodPopUp" />
         <activity android:name=".SendDataActivity" />
+        <activity android:name=".MindWaveSensor" />
     </application>
 
 </manifest>

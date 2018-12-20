@@ -53,6 +53,7 @@ public class RegistrableSensorManager extends Service {
     private Handler handler1 = new Handler();
     private CSVPrinter eventCounts;
     private CSVPrinter sensorData;
+    private CSVPrinter mindWave;
     private RegistrableSensorEventListener[] sensors;
     private boolean[] registered;
 
@@ -135,6 +136,8 @@ public class RegistrableSensorManager extends Service {
                 CSVFormat eventCountsFileFormat = CSVFormat.DEFAULT;
                 File sensorDataFile = new File(parent + "/sensorData.csv");
                 CSVFormat sensorDataFileFormat = CSVFormat.DEFAULT;
+                File mindWaveFile = new File(parent + "/mindWave.csv");
+                CSVFormat mindWaveFileFormat = CSVFormat.DEFAULT;
 
                 if(!eventCountsFile.exists())
                 {
@@ -162,6 +165,13 @@ public class RegistrableSensorManager extends Service {
                 }
 
                 sensorData = new CSVPrinter(new BufferedWriter(new FileWriter(sensorDataFile, true)), sensorDataFileFormat);
+
+                if(!mindWaveFile.exists())
+                {
+                    mindWaveFileFormat = CSVFormat.DEFAULT.withHeader("Time", "Type");
+                }
+
+                mindWave = new CSVPrinter(new BufferedWriter(new FileWriter(mindWaveFile, true)), mindWaveFileFormat);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -473,6 +483,16 @@ public class RegistrableSensorManager extends Service {
         try {
             eventCounts.printRecord(input);
             eventCounts.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeMindWaveEvent(String type)
+    {
+        try {
+            mindWave.printRecord(sdf.format(Calendar.getInstance().getTime()), type);
+            mindWave.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }

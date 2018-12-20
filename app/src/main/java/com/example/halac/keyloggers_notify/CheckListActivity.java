@@ -34,7 +34,7 @@ public class CheckListActivity extends AppCompatActivity implements Button.OnCli
         RegistrableSensorManager rsm = RegistrableSensorManager.Instance;
         String parent = getFilesDir().toString() + "/";
         String zipName = parent + "testArchive.zip";
-        String[] fileList = { parent + "eventCounts.csv", parent + "sensorData.csv", parent + "AudioRecord"};
+        String[] fileList = { parent + "eventCounts.csv", parent + "sensorData.csv", parent + "AudioRecord", parent + "mindWave.csv" };
         Uploader.zipFiles(fileList, zipName);
         File file = new File(zipName);
         fileSize.setText("Approximate maximum file size: " + Formatter.formatShortFileSize(rsm, file.length()));
@@ -65,7 +65,7 @@ public class CheckListActivity extends AppCompatActivity implements Button.OnCli
                     @Override
                     public void run() {
                         try {
-                            Uploader.upload(selected.contains("Audio Files"), selected.contains("Key Logger"), selected.contains("GPS"), selected.contains("Time Spent"), selected.contains("Sensors"));
+                            Uploader.upload(selected.contains("Audio Files"), selected.contains("Key Logger"), selected.contains("GPS"), selected.contains("Time Spent"), selected.contains("Sensors"), selected.contains("MindWave"));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

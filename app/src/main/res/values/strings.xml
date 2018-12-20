@@ -9,6 +9,7 @@
         <item>GPS</item>
         <item>Time Spent </item>
         <item>Sensors' Data</item>
+        <item>MindWave</item>
     </string-array>
 
 </resources>
