@@ -25,7 +25,7 @@
             <Button
                 android:id="@+id/headsetButton"
                 android:layout_width="match_parent"
-                android:layout_height="34dp"
+                android:layout_height="50dp"
                 android:maxHeight="20dp"
                 android:minHeight="20dp"
                 android:text="Headset"

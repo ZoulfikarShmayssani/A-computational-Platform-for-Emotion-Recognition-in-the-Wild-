@@ -106,7 +106,7 @@ public class MindWaveSensor extends AppCompatActivity {
                 Log.d(TAG, "NskAlgoSdkStateChangeListener: state: " + stateStr + ", reason: " + reasonStr);
                 final String finalStateStr = stateStr + " | " + reasonStr;
                 final int finalState = state;
-                runOnUiThread(new Runnable() {
+                MindWaveSensor.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         // change UI elements here
@@ -151,7 +151,7 @@ public class MindWaveSensor extends AppCompatActivity {
         nskAlgoSdk.setOnEyeBlinkDetectionListener(new NskAlgoSdk.OnEyeBlinkDetectionListener() {
             @Override
             public void onEyeBlinkDetect(int strength) {
-                RegistrableSensorManager.Instance.writeMindWaveEvent("Blink");
+                RegistrableSensorManager.Instance.writeMindWaveEvent("Blink", strength);
             }
         });
     }
@@ -254,12 +254,12 @@ public class MindWaveSensor extends AppCompatActivity {
                 case MindDataType.CODE_ATTENTION:
 //                    short attValue[] = {(short)data};
 //                    nskAlgoSdk.NskAlgoDataStream(NskAlgoDataType.NSK_ALGO_DATA_TYPE_ATT.value, attValue, 1);
-                    RegistrableSensorManager.Instance.writeMindWaveEvent("Attention");
+                    RegistrableSensorManager.Instance.writeMindWaveEvent("Attention", data);
                     break;
                 case MindDataType.CODE_MEDITATION:
 //                    short medValue[] = {(short)data};
 //                    nskAlgoSdk.NskAlgoDataStream(NskAlgoDataType.NSK_ALGO_DATA_TYPE_MED.value, medValue, 1);
-                    RegistrableSensorManager.Instance.writeMindWaveEvent("Meditation");
+                    RegistrableSensorManager.Instance.writeMindWaveEvent("Meditation", data);
                     break;
                 default:
                     break;

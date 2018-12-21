@@ -168,7 +168,7 @@ public class RegistrableSensorManager extends Service {
 
                 if(!mindWaveFile.exists())
                 {
-                    mindWaveFileFormat = CSVFormat.DEFAULT.withHeader("Time", "Type");
+                    mindWaveFileFormat = CSVFormat.DEFAULT.withHeader("Time", "Type", "value");
                 }
 
                 mindWave = new CSVPrinter(new BufferedWriter(new FileWriter(mindWaveFile, true)), mindWaveFileFormat);
@@ -488,10 +488,10 @@ public class RegistrableSensorManager extends Service {
         }
     }
 
-    public void writeMindWaveEvent(String type)
+    public void writeMindWaveEvent(String type, int value)
     {
         try {
-            mindWave.printRecord(sdf.format(Calendar.getInstance().getTime()), type);
+            mindWave.printRecord(sdf.format(Calendar.getInstance().getTime()), type, value);
             mindWave.flush();
         } catch (IOException e) {
             e.printStackTrace();
