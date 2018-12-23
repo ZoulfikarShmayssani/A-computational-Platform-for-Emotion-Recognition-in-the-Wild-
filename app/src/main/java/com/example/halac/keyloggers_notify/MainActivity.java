@@ -12,7 +12,10 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-
+/*
+Used in the registration activity for ensuring that the user will enters all the fields( name, age and gender).
+after he user fills the fields and clicks on "add" button, the app will redirect to the settings to enable Accessibility for the app
+ */
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         add.setEnabled(false);
 
         check(); // cannot press the button if not filled
-
+        //Redirecting to the settings to enable Accessibility
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
         String age1 = age.getText().toString().trim();
         String gender1 = gender.getText().toString().trim();
 
-
         fname.setText("");
         lname.setText("");
         gender.setText(gender1);
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         db.insertUser(fname1, lname1, age1, gender1);
     }
 
+    //Checks if all the fields are entered
     public void check() {
         fname.addTextChangedListener(new TextWatcher() {
             @Override

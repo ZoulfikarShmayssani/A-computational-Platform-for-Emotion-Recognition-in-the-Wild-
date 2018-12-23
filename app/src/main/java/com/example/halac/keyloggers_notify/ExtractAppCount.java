@@ -1,7 +1,9 @@
 package com.example.halac.keyloggers_notify;
 
 import java.util.List;
-
+/*
+App count data
+ */
 public class ExtractAppCount implements FeatureExtractor {
 
 	private double count = 0.0;

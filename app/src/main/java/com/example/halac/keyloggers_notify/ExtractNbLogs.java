@@ -1,7 +1,9 @@
 package com.example.halac.keyloggers_notify;
 
 import java.util.List;
-
+/*
+Extract the number of logs
+ */
 public class ExtractNbLogs implements FeatureExtractor {
 
 	private double count = 0.0;

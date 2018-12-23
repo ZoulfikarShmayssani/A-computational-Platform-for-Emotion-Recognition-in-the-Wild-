@@ -6,9 +6,9 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Checkable;
 import android.widget.LinearLayout;
-
 /**
  * This class is useful for using inside of a ListView that needs to have checkable items.
+ * For Send Data Checklist User Interface
  */
 public class CheckableLinearLayout extends LinearLayout implements Checkable {
     private CheckBox checkbox;

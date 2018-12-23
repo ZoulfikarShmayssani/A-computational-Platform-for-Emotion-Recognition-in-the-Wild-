@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+/*The class is used for creating the Send Data Checklist Activity
+ */
 public class CustomAdapter extends BaseAdapter {
     private String[] data;
     private LayoutInflater inflater;

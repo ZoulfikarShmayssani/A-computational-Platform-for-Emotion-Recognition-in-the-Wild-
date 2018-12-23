@@ -4,10 +4,13 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.os.Looper;
-
+/*
+Class used for registering the Hardware and Software sensors that are available in the android phone
+Documentation for android sensors framework (https://developer.android.com/guide/topics/sensors/sensors_overview)
+ */
 public class RegistrableSensorEventListener implements SensorEventListener {
     public final RegistrableSensorType type;
-    public final int duration; // in seconds
+    public final int duration; // The duration of collecting data in seconds
     private float[] lastMeasuredValues;
     private Sensor sensor;
 

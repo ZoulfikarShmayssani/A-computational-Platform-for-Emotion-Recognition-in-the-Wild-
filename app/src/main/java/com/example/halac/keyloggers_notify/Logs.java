@@ -1,8 +1,5 @@
 package com.example.halac.keyloggers_notify;
 
-/**
- * Created by halac on 10/30/17.
- */
 
 public class Logs {
     String context;

@@ -13,6 +13,9 @@ import android.widget.RadioButton;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/*
+Used for creating the pop-up activity that asks the user for his mood(Happy, Sad, Anxiuos, Angry)
+ */
 public class MoodPopUp extends AppCompatActivity {
 
     @Override

@@ -3,10 +3,6 @@ package com.example.halac.keyloggers_notify;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/**
- * Created by halac on 10/31/17.
- */
-
 public class Users {
     String fname;
     String lname;

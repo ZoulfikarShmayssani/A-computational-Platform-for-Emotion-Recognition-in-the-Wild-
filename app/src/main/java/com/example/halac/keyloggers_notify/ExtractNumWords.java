@@ -1,6 +1,9 @@
 package com.example.halac.keyloggers_notify;
 
 import java.util.List;
+/*
+Extract the number of words
+ */
 
 public class ExtractNumWords implements FeatureExtractor {
 

@@ -35,6 +35,10 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/*
+This class contains all the services that are running in the app( Sensors, events, and audio services)
+ */
+
 public class RegistrableSensorManager extends Service {
     public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static String mood = null;
@@ -43,10 +47,10 @@ public class RegistrableSensorManager extends Service {
     private static LocationManager locationManager;
     private static MyLocationListener locationListener;
     private static PowerManager.WakeLock wl;
-    private final int eventsPeriod = 20; // in seconds
-    private final int audioPeriod = 60; // in seconds
-    private final int audioLength = 10; // in seconds
-    private static final int popupPeriod = 2 * 60 * 60; // in seconds
+    private final int eventsPeriod = 20; //   in seconds
+    private final int audioPeriod = 60; //  in seconds
+    private final int audioLength = 10; //  in seconds
+    private static final int popupPeriod = 2 * 60 * 60; // in seconds (The pop-up appears after 2 hours)
     public DatabaseHelper db = new DatabaseHelper(this);
     private MediaRecorder recorder;
     private File audioRecordFolder;
@@ -70,7 +74,7 @@ public class RegistrableSensorManager extends Service {
             recorder.release();
         }
     };
-
+    //pop-up handling
     private Runnable popupRunnable = new Runnable() {
         @Override
         public void run() {
@@ -120,6 +124,7 @@ public class RegistrableSensorManager extends Service {
     }
 
     @Override
+    //writing data on the csv files
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getAction().startsWith("com.example.halac.keyloggers_notify.action.startforeground")) {
 
@@ -288,6 +293,7 @@ public class RegistrableSensorManager extends Service {
         }
     }
 
+    //Audio recording handling
     private void recordAudio(String fileName) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
             try {
@@ -388,7 +394,7 @@ public class RegistrableSensorManager extends Service {
     private int gcd(int a, int b) {
         return (b == 0) ? a : gcd(b, a % b);
     }
-
+    //Write counts for the phone activity events (scrolls, clicks..)
     private void writeCounts() throws ParseException {
         Calendar cal = Calendar.getInstance();
         long currentTime = cal.getTime().getTime();

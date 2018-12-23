@@ -8,11 +8,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+/*
+Registration Activity User interface (Launch activity)
+ */
 
 public class launchActivity extends AppCompatActivity {
 
     Button register;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

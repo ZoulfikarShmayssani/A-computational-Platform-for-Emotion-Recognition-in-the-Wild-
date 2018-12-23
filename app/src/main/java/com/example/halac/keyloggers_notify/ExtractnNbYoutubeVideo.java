@@ -1,7 +1,9 @@
 package com.example.halac.keyloggers_notify;
 
 import java.util.List;
-
+/*
+Extract the number of youtube Videos watched
+ */
 public class ExtractnNbYoutubeVideo implements FeatureExtractor {
 
 	private double count = 0.0;

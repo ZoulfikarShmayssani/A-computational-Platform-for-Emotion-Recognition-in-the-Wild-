@@ -8,8 +8,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+/*Saving the registration Info and the Phone's activity data(event Counts (clicks,scrolls, time spent...) in SQLite database locally
+ */
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+    //registration data
     public final static String DATABASE_NAME = "User.db";
     public final static String TABLE_NAME = "user";
     public final static String COL_1 = "FirstName";
@@ -17,7 +20,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public final static String COL_3 = "age";
     public final static String COL_4 = "gender";
 
-
+    //phone's activity data( type is: scrolls, clicks...)
     public final static String Extraction_Table = "Extraction";
     public final static String ECOL_1 = "Type";
     public final static String ECOL_2 = "Context";
@@ -45,6 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    //Inserting a new user
     public void insertUser(String firstName, String lastName, String age, String gender) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -55,7 +59,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.insert(TABLE_NAME, null, contentValues);
     }
-
+    //get the data about the user
     public Users getUser() {
         String selectQuery = "SELECT  * FROM " + TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -80,6 +84,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("delete from " + TABLE_NAME);
     }
 
+    //Inserting the phone activity logs
     public void insertLog(String type, String context, String date) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -89,6 +94,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(Extraction_Table, null, contentValues);
     }
 
+    //Getting the Logs
     public List<Log> getLogs(String where) {
         String selectQuery = "SELECT * FROM " + Extraction_Table + " WHERE " + where;
         SQLiteDatabase db = this.getReadableDatabase();

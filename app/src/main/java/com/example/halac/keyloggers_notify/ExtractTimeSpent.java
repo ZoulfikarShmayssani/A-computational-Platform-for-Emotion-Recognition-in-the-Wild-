@@ -4,7 +4,9 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+/*
+Extracting the time spent in using Apps of different types
+ */
 public class ExtractTimeSpent implements FeatureExtractor {
 
 	private double count = 0.0;

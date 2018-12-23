@@ -29,9 +29,15 @@ import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+/*
+Uploading the data ( sensorData.csv, eventCounts.csv, audio records, mindwave.csv and  the registration info) to DropBox as a zip file. It depends also on what the user wants to send
+(checklist activity). Once the data is sent, the local data will be deleted from the internal storage of the phone.
+ */
 public class Uploader {
+    //Token for the DropBox API
     private static final String ACCESS_TOKEN = "PQ1-gA3ADaYAAAAAAAAASRr_mmSTWeOMIJpu71uUbRVoaJMZebTH-H1mNyFhiQxA";
 
+    // Depends on what the user wants to upload
     public static void upload(boolean audio, boolean keyLogger, boolean gps, boolean times, boolean sensors, boolean mindWave) throws IOException {
         RegistrableSensorManager rsm = RegistrableSensorManager.Instance;
         Intent service = new Intent(rsm.getApplicationContext(), RegistrableSensorManager.class);
@@ -216,7 +222,7 @@ public class Uploader {
 
         return result;
     }
-
+    //put the CSV files, the audio records, and the registration info in a zip file
     private static boolean zipFiles(ZipOutputStream out, String[] filesList) {
         try {
             for(String file: filesList) {

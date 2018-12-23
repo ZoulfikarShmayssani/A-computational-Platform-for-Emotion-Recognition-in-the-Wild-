@@ -1,6 +1,8 @@
 package com.example.halac.keyloggers_notify;
 import java.util.*;
-
+/*
+A session will be created for each user
+ */
 public class Sessions {
 	private List<User> Sessions;
 

@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/* This class is used when the user wants to send the data in the Data send data checklist Activity(Sent as a zip file containing the CSV files and audio recordings)
+ */
+
 public class CheckListActivity extends AppCompatActivity implements Button.OnClickListener {
     private ListView listView;
     private Button SubmitData, Cancel;
@@ -51,6 +54,7 @@ public class CheckListActivity extends AppCompatActivity implements Button.OnCli
     }
 
     @Override
+    //Once the user clicks on submitData, the files that are stored locally will be uploaded to DropBox
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.SubmitData:

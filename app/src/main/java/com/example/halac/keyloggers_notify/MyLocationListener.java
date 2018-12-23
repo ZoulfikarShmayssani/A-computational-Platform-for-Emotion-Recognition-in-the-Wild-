@@ -3,10 +3,12 @@ package com.example.halac.keyloggers_notify;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
-
+/*
+Getting the location of the user (longitude and latitude)
+ */
 class MyLocationListener implements LocationListener
 {
-    public static final int duration = 20; //in seconds
+    public static final int duration = 20; //collect data after each 20 seconds
     private double[] lastMeasuredValues;
 
     @Override

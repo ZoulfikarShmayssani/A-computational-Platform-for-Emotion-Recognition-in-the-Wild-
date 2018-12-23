@@ -2,6 +2,9 @@ package com.example.halac.keyloggers_notify;
 
 import android.hardware.Sensor;
 
+/*
+Used for registering the sensors that we want ( Temperature, Humidity, Gyroscope, Steps Counter, Light...)
+ */
 public enum RegistrableSensorType {
     humidity(0, Sensor.TYPE_RELATIVE_HUMIDITY),
     accelerometer(1, Sensor.TYPE_ACCELEROMETER),

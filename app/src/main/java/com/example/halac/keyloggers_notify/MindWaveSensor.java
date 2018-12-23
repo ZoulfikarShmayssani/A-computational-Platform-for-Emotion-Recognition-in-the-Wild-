@@ -17,7 +17,9 @@ import com.neurosky.connection.ConnectionStates;
 import com.neurosky.connection.TgStreamHandler;
 import com.neurosky.connection.TgStreamReader;
 import com.neurosky.connection.DataType.MindDataType;
-
+/*
+Bluetooth connection to the MindWave sensor, and getting Data from it(Attention, Mediation, Eye Blinking)
+ */
 public class MindWaveSensor extends AppCompatActivity {
     final String TAG = "MainActivityTag";
 
@@ -246,6 +248,7 @@ public class MindWaveSensor extends AppCompatActivity {
         }
 
         @Override
+        //The data that are collected from the sensor( Attention, Meditation, Eye Blinking)
         public void onDataReceived(int datatype, int data, Object obj) {
             // You can handle the received data here
             // You can feed the raw data to algo sdk here if necessary.

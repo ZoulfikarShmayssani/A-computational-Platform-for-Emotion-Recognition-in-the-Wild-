@@ -1,14 +1,15 @@
 package com.example.halac.keyloggers_notify;
 
-/**
- * Created by halac on 10/4/17.
- */
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.view.accessibility.AccessibilityEvent;
 
 import java.util.Calendar;
+/*
+Used for collecting the (EventCounts) Data using the Accessibility service
+The documentation of Accessibility service (https://developer.android.com/guide/topics/ui/accessibility/)
+ */
 
 public class MyAccessibilityService extends AccessibilityService {
     int counter = 0;
@@ -18,6 +19,7 @@ public class MyAccessibilityService extends AccessibilityService {
     String id = "";
 
     @Override
+    //Once the Accessibility service is enabled
     public void onServiceConnected() {
         AccessibilityServiceInfo info = new AccessibilityServiceInfo();
         info.eventTypes = AccessibilityEvent.TYPE_VIEW_CLICKED |
@@ -29,6 +31,7 @@ public class MyAccessibilityService extends AccessibilityService {
         this.setServiceInfo(info);
     }
     @Override
+    // Collecting (scrolls, clicks, texts..(logs) ) and save them in SQlite database (addlogg())
     public void onAccessibilityEvent(AccessibilityEvent event) {
         Long t = Calendar.getInstance().getTime().getTime ();
         String time = t.toString ();

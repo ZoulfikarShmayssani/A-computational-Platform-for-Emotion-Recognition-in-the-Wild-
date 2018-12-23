@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+/*
+The class is used to go from activity to another when you click on( Enter current emotion, Send data checklist, and mind wave buttons)
+ */
 
 public class SendDataActivity extends AppCompatActivity {
 
@@ -18,6 +21,7 @@ public class SendDataActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_data);
         checkList = (Button) findViewById(R.id.SendDataChecklist);
+        //Send data checklist button
         checkList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -26,6 +30,7 @@ public class SendDataActivity extends AppCompatActivity {
 
             }
         });
+        //Enter your current emotion button
         emtionSelection = (Button) findViewById(R.id.button2);
         emtionSelection.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -35,6 +40,7 @@ public class SendDataActivity extends AppCompatActivity {
 
             }
         });
+        //mind wave data button
         mindWave = (Button) findViewById(R.id.MindwaveData);
         mindWave.setOnClickListener(new View.OnClickListener() {
             @Override
